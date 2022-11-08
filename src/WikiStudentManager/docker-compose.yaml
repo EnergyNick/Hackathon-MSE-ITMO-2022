@@ -1,20 +1,28 @@
 version: '3.9'
+x-php: &php
+  build: 
+    context: .
+    dockerfile: ./Dockerfile
+  volumes:
+    - "./:/app"
+  networks:
+    - internal
+  environment:
+    - APP_DEBUG=true
+    - DB_CONNECTION=sqlite
+    - APP_KEY:base64:d1k91AgNcf1g7t/SVxBwE3u4NFK/I3vMH8Gyzl2Rvrs=
+
 services:
   php:
-    build: 
-      context: .
-      dockerfile: ./Dockerfile
-    volumes:
-      - "./:/app"
     ports:
-      - "8080:80"
-    # depends_on:
-    #   - postgres
-    networks:
-      - internal
-    environment:
-      - APP_DEBUG=true
-      - DB_CONNECTION=sqlite
+    - "8080:80"
+    depends_on:
+      - database
+    <<: *php
+
+  database:
+    <<: *php
+    command: php artisan migrate --force
 
   # postgres:
   #   image: postgres
@@ -23,8 +31,7 @@ services:
   #     POSTGRES_DB: app
   #     POSTGRES_USER: postgres
   #     POSTGRES_PASSWORD: password
-  #   ports:
-  #     - "5432:5432"
+
   #   networks:
   #     - internal
 

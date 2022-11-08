@@ -24,4 +24,5 @@ RUN touch ./database/database.sqlite
 EXPOSE 80
 
 USER student
+
 CMD php -S 0.0.0.0:80 -t public
