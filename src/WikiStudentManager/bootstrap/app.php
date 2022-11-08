@@ -95,6 +95,7 @@ $app->configure('wiki');
 // $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+$app->register(\Anik\Form\FormRequestServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

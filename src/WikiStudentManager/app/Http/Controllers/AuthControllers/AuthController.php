@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AuthControllers;
 use App\Http\Controllers\BaseController;
 use App\Services\AuthService\AuthServiceInterface;
 use Illuminate\Http\JsonResponse;
+use App\Http\Requests\AuthRequests\AuthUserRequest;
 
 class AuthController extends BaseController
 {
@@ -19,8 +20,9 @@ class AuthController extends BaseController
         $this->service = $service;
     }
 
-    public function auth(): JsonResponse
+    public function auth(AuthUserRequest $request): JsonResponse
     {
+        dd($request->validated());
         return $this->service->auth();
     }
 }
