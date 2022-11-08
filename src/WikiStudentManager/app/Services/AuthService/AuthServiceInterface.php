@@ -2,7 +2,9 @@
 
 namespace App\Services\AuthService;
 
+use Illuminate\Http\JsonResponse;
+
 interface AuthServiceInterface
 {
-    public function auth(): string;
+    public function auth(): JsonResponse;
 }

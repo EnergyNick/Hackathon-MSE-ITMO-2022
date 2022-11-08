@@ -20,5 +20,5 @@ $router->get('/', function () use ($router) {
 });
 
 $router->group(['namespace' => 'AuthControllers'], function () use ($router) {
-    $router->get('/test', 'AuthController@test');
+    $router->get('/test', 'AuthController@auth');
 });
