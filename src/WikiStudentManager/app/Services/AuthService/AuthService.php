@@ -12,7 +12,7 @@ class AuthService implements AuthServiceInterface
 {
     public function auth(): JsonResponse
     {
-        $response = Auth::authUser();
+        $response = Auth::authBot();
         return response()->json($response->json(), 200);
     }
 }
