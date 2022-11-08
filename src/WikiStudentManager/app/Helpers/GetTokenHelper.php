@@ -5,7 +5,7 @@ namespace App\Helpers;
 use App\Exceptions\IntegrationException;
 use Illuminate\Support\Facades\Http;
 
-class GetToken
+class GetTokenHelper
 {
     /**
      * Get token for auth.
