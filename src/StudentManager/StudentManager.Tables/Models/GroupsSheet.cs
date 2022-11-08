@@ -7,12 +7,18 @@ public record GroupData : ISheetRowData
     public string LinkToGoogleGroup { get; set; }
 }
 
-internal class GroupsSheet : GoogleSheetFromRowEditor<GroupData>
+internal class GroupsSheet : BaseGoogleSheetFromRowEditor<GroupData>
 {
-    protected override Dictionary<string, Action<GroupData, object>> InitializeValues { get; }
+    protected override Dictionary<string, Action<GroupData, object>> InitializeValues => new()
+    {
+        ["ID"] = (data, value) => data.Id = value.ToString(),
+        ["Год"] = (data, value) => data.Year = value.ToString(),
+        ["Google группа"] = (data, value) => data.LinkToGoogleGroup = value.ToString(),
+    };
+    
+    protected override string LeafSheet => "Группы";
 
-    public GroupsSheet(SheetConnectData connectData)
-        : base(new GoogleSheetEditor(connectData, "Группы"))
+    public GroupsSheet(SheetConnectData sheetConnectData) : base(sheetConnectData)
     {
     }
 }

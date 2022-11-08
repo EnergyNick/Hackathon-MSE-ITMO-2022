@@ -10,7 +10,7 @@ public record AcademicSubjectData : ISheetRowData
     public string Term { get; set; }
 }
 
-internal class AcademicSubjectSheet : GoogleSheetFromRowEditor<AcademicSubjectData>
+internal class AcademicSubjectSheet : BaseGoogleSheetFromRowEditor<AcademicSubjectData>
 {
     protected override Dictionary<string, Action<AcademicSubjectData, object>> InitializeValues => new()
     {
@@ -22,8 +22,9 @@ internal class AcademicSubjectSheet : GoogleSheetFromRowEditor<AcademicSubjectDa
         ["Семестр"] = (data, value) => data.Term = value.ToString(),
     };
 
-    public AcademicSubjectSheet(SheetConnectData connectData) :
-        base(new GoogleSheetEditor(connectData, "Предметы"))
+    protected override string LeafSheet => "Предметы";
+
+    public AcademicSubjectSheet(SheetConnectData sheetConnectData) : base(sheetConnectData)
     {
     }
 }

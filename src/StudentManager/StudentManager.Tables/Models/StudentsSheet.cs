@@ -12,13 +12,24 @@ public record StudentData : ISheetRowData
     public string IdGroup { get; set; }
 }
 
-internal class StudentsSheet : GoogleSheetFromRowEditor<StudentData>
+internal class StudentsSheet : BaseGoogleSheetFromRowEditor<StudentData>
 {
-    protected override Dictionary<string, Action<StudentData, object>> InitializeValues { get; }
-    
-    public StudentsSheet(SheetConnectData sheetConnectData) :
-        base(new GoogleSheetEditor(sheetConnectData, "Студенты"))
+    protected override Dictionary<string, Action<StudentData, object>> InitializeValues => new()
     {
-        
+        ["ID"] = (data, value) => data.Id = value.ToString(),
+        ["ID ИСУ"] = (data, value) => data.IsuId = value.ToString(),
+        ["Фамилия"] = (data, value) => data.Surname = value.ToString(),
+        ["Имя"] = (data, value) => data.Name = value.ToString(),
+        ["Отчество"] = (data, value) => data.Patronymic = value.ToString(),
+        ["Telegram"] = (data, value) => data.Telegram = value.ToString(),
+        ["Почта"] = (data, value) => data.Email = value.ToString(),
+        ["ID группы"] = (data, value) => data.IdGroup = value.ToString(),
+    };
+    
+    protected override string LeafSheet => "Студенты";
+
+    public StudentsSheet(SheetConnectData sheetConnectData)
+        : base(sheetConnectData)
+    {
     }
 }

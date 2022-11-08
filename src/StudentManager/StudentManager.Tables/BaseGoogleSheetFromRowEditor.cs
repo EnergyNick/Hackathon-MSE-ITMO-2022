@@ -1,19 +1,17 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿namespace StudentManager.Tables;
 
-namespace StudentManager.Tables;
-
-internal abstract class GoogleSheetFromRowEditor<T> : IGoogleSheet<T> where T : new ()
+internal abstract class BaseGoogleSheetFromRowEditor<T> : IGoogleSheet<T> where T : new ()
 {
     protected record AvailableColumn(string Value, int Index);
 
     protected abstract Dictionary<string, Action<T, object>> InitializeValues { get; }
+    protected abstract string LeafSheet { get; }
 
     private readonly GoogleSheetEditor _googleSheetFromRowEditor;
 
-    protected GoogleSheetFromRowEditor(GoogleSheetEditor googleSheetEditor)
+    protected BaseGoogleSheetFromRowEditor(SheetConnectData sheetConnectData)
     {
-        _googleSheetFromRowEditor = googleSheetEditor;
+        _googleSheetFromRowEditor = new GoogleSheetEditor(sheetConnectData, LeafSheet);
     }
 
     public async Task<List<T>> ReadAll()
@@ -32,8 +30,8 @@ internal abstract class GoogleSheetFromRowEditor<T> : IGoogleSheet<T> where T : 
         for (int i = 0; i < namesColumn.Count; ++i)
         {
             var nameColumn = namesColumn[i].ToString();
-            /*if (ContainsColumn(nameColumn))
-                availableColumns.Add(new AvailableColumn(nameColumn, i));*/
+            if (InitializeValues.ContainsKey(nameColumn))
+                availableColumns.Add(new AvailableColumn(nameColumn, i));
         }
 
         return availableColumns;

@@ -12,11 +12,11 @@ public static class ServiceCollectionExtensions
     {
         var sheetConnectData = new SheetConnectData(_spreadsheetId, configuration);
         
-        /*services.AddSingleton(new AcademicSubjectSheet(sheetConnectData));
+        services.AddSingleton(new AcademicSubjectSheet(sheetConnectData));
         services.AddSingleton(new GroupsSheet(sheetConnectData));
         services.AddSingleton(new StatementsSheet(sheetConnectData));
         services.AddSingleton(new StudentsSheet(sheetConnectData));
         services.AddSingleton(new SubgroupsOfPracticeSheet(sheetConnectData));
-        services.AddSingleton(new TeachersSheet(sheetConnectData));*/
+        services.AddSingleton(new TeachersSheet(sheetConnectData));
     }
 }
