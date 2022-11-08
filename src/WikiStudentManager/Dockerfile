@@ -19,6 +19,7 @@ RUN composer install --ignore-platform-reqs
 RUN composer dump-autoload
 
 RUN chmod a=rwx -R ./storage/logs/
+RUN touch ./database/database.sqlite
 
 EXPOSE 80
 
