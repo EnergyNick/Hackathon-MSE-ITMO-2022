@@ -2,6 +2,7 @@
 
 namespace App\Services\AuthService;
 
+use App\Helpers\Auth;
 use App\Helpers\GetTokenHelper;
 use App\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
@@ -11,9 +12,7 @@ class AuthService implements AuthServiceInterface
 {
     public function auth(): JsonResponse
     {
-        // $tokenAuth = GetToken::login();
-        $tokenCsrf = GetTokenHelper::csrf();
-
-        return SuccessResponse::response($tokenCsrf, ['ggg' => 'fff'], 200);
+        $response = Auth::authUser();
+        return response()->json($response->json(), 200);
     }
 }

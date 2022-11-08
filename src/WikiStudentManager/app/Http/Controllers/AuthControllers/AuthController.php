@@ -20,9 +20,8 @@ class AuthController extends BaseController
         $this->service = $service;
     }
 
-    public function auth(AuthUserRequest $request): JsonResponse
+    public function auth(): JsonResponse
     {
-        dd($request->validated());
         return $this->service->auth();
     }
 }
