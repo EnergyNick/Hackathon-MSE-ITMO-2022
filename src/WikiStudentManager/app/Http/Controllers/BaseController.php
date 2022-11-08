@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Laravel\Lumen\Routing\Controller as BaseController;
+use Laravel\Lumen\Routing\Controller;
 
-class Controller extends BaseController
+class BaseController extends Controller
 {
     /**
      * Class of service.

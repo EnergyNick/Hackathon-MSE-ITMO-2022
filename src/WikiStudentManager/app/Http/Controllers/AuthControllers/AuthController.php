@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\AuthControllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\BaseController;
 use App\Services\AuthService\AuthServiceInterface;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     /**
      * Initialize class of service.
