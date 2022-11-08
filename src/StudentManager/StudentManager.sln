@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentManager.Service", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentManager.Tables", "StudentManager.Tables\StudentManager.Tables.csproj", "{2296F5B2-0466-464E-8EA1-F10E7077865B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StudentManager.Core", "StudentManager.Core\StudentManager.Core.csproj", "{96B82BA0-81C7-45BD-B6AB-7A6179196BF0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{2296F5B2-0466-464E-8EA1-F10E7077865B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2296F5B2-0466-464E-8EA1-F10E7077865B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2296F5B2-0466-464E-8EA1-F10E7077865B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{96B82BA0-81C7-45BD-B6AB-7A6179196BF0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{96B82BA0-81C7-45BD-B6AB-7A6179196BF0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{96B82BA0-81C7-45BD-B6AB-7A6179196BF0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{96B82BA0-81C7-45BD-B6AB-7A6179196BF0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
