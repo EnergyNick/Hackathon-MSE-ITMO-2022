@@ -3,20 +3,20 @@ using System.Collections.Generic;
 
 namespace StudentManager.Tables;
 
-internal abstract class BaseConnectToSheet<T>
+internal abstract class BaseConnectToSheet<T> : IGoogleSheet<T>
 {
     protected record AvailableColumn(string Value, int Index);
 
-    private readonly GoogleSheetsEditor _googleSheetsEditor;
+    private readonly GoogleSheetFromRowEditor _googleSheetFromRowEditor;
 
-    protected BaseConnectToSheet(GoogleSheetsEditor googleSheetsEditor)
+    protected BaseConnectToSheet(GoogleSheetFromRowEditor googleSheetFromRowEditor)
     {
-        _googleSheetsEditor = googleSheetsEditor;
+        _googleSheetFromRowEditor = googleSheetFromRowEditor;
     }
 
     public List<T> Load()
     {
-        IList<IList<object>> sheetValues = _googleSheetsEditor.GetSheet();
+        IList<IList<object>> sheetValues = _googleSheetFromRowEditor.GetSheet();
 
         List<AvailableColumn> avaliableColumns = new List<AvailableColumn>();
         var namesColumn = sheetValues[0];
@@ -33,4 +33,13 @@ internal abstract class BaseConnectToSheet<T>
     protected abstract List<T> Parse(IList<IList<object>> sheetValues, IList<AvailableColumn> availableColumns);
 
     protected abstract bool ContainsColumn(string nameColumn);
+    public Task<List<T>> ReadAll()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task Update(T value, string id)
+    {
+        throw new NotImplementedException();
+    }
 }

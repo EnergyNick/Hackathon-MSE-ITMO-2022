@@ -5,20 +5,25 @@ namespace StudentManager.Tables;
 
 internal record SheetConnectData(string SpreadsheetId, IConfiguration Configuration);
 
-public class ManagerTablesHandler
+public class ManagerTablesHandler : IGoogleSheet<>
 {
     private const string _spreadsheetId = "1Z4tV3gmqqDrfTH8W-clmsb6SK-e1r0MCcxEI4kiFVVw";
 
-    private readonly StudentsTable _table;
+    private readonly StudentsSheet _sheet;
 
     public ManagerTablesHandler(IConfiguration configuration)
     {
         SheetConnectData connectData = new(_spreadsheetId, configuration);
-        _table = new StudentsTable(connectData);
+        _sheet = new StudentsSheet(connectData);
     }
 
-    public void GetStudentsTable()
+    public Task<List<T>> ReadAll<T>()
     {
-        _table.Load();
+        throw new NotImplementedException();
+    }
+
+    public Task Update<T>(T value, string id)
+    {
+        throw new NotImplementedException();
     }
 }

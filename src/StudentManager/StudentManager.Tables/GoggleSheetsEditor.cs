@@ -5,18 +5,20 @@ using Google.Apis.Services;
 
 namespace StudentManager.Tables;
 
-internal class GoogleSheetsEditor
+internal class GoogleSheetFromRowEditor
 {
+    private const string _keyFromGetGoogleAPIToken = "GoogleAPIToken";
+    
     private readonly SheetsService _service;
     private readonly string _spreadsheetId;
     private readonly string _sheetNameAndRange;
 
-    public GoogleSheetsEditor(SheetConnectData sheetConnectData, string sheetNameAndRange)
+    public GoogleSheetFromRowEditor(SheetConnectData sheetConnectData, string sheetNameAndRange)
     {
         _spreadsheetId = sheetConnectData.SpreadsheetId;
         _sheetNameAndRange = sheetNameAndRange;
         
-        string jsonToken = sheetConnectData.Configuration.GetSection("GoogleAPIToken").Value;
+        string jsonToken = sheetConnectData.Configuration.GetSection(_keyFromGetGoogleAPIToken).Value;
         var credential = GoogleCredential.FromJson(jsonToken).UnderlyingCredential as ServiceAccountCredential;
         
         _service = new SheetsService(

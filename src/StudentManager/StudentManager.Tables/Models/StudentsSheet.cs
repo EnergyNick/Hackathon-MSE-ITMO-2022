@@ -3,10 +3,10 @@
 public record StudentData(string Id, string IsuId, string Surname, string Name, string Patronymic,
     string Telegram, string Email, string IdGroup);
 
-internal class StudentsTable : BaseConnectToSheet<StudentData>
+internal class StudentsSheet : BaseConnectToSheet<StudentData>
 {
-    public StudentsTable(SheetConnectData sheetConnectData) :
-        base(new GoogleSheetsEditor(sheetConnectData, "Студенты"))
+    public StudentsSheet(SheetConnectData sheetConnectData) :
+        base(new GoogleSheetFromRowEditor(sheetConnectData, "Студенты"))
     {
         
     }

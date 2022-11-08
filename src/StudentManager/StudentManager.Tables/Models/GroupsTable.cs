@@ -5,7 +5,7 @@ public record GroupData(string Id, string Year, string LinkToGoogleGroup);
 internal class GroupsTable : BaseConnectToSheet<GroupData>
 {
     public GroupsTable(SheetConnectData connectData)
-        : base(new GoogleSheetsEditor(connectData, "Группы"))
+        : base(new GoogleSheetFromRowEditor(connectData, "Группы"))
     {
     }
 
