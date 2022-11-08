@@ -12,6 +12,8 @@ services:
     #   - postgres
     networks:
       - internal
+    environment:
+      - APP_DEBUG=true
 
   # postgres:
   #   image: postgres

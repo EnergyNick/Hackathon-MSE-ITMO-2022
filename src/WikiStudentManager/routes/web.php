@@ -18,3 +18,7 @@ use Illuminate\Support\Facades\Http;
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->group(['namespace' => 'AuthControllers'], function () use ($router) {
+    $router->get('/test', 'AuthController@test');
+});
