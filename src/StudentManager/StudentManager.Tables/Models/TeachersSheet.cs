@@ -1,7 +1,14 @@
 ﻿namespace StudentManager.Tables.Models;
 
-public record TeacherData(string Id, string Surname, string Name, string Patronymic,
-    string Telegram, string Email);
+public class TeacherData : ISheetRowData
+{
+    public string Id { get; set; }
+    public string Surname { get; set; }
+    public string Name { get; set; }
+    public string Patronymic { get; set; }
+    public string Telegram { get; set; }
+    public string Email { get; set; }
+}
 
 internal class TeachersSheet
 {

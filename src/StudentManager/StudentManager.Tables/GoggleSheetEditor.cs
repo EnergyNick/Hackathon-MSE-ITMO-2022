@@ -5,7 +5,7 @@ using Google.Apis.Services;
 
 namespace StudentManager.Tables;
 
-internal class GoogleSheetFromRowEditor
+internal class GoogleSheetEditor
 {
     private const string _keyFromGetGoogleAPIToken = "GoogleAPIToken";
     
@@ -13,7 +13,7 @@ internal class GoogleSheetFromRowEditor
     private readonly string _spreadsheetId;
     private readonly string _sheetNameAndRange;
 
-    public GoogleSheetFromRowEditor(SheetConnectData sheetConnectData, string sheetNameAndRange)
+    public GoogleSheetEditor(SheetConnectData sheetConnectData, string sheetNameAndRange)
     {
         _spreadsheetId = sheetConnectData.SpreadsheetId;
         _sheetNameAndRange = sheetNameAndRange;
@@ -29,11 +29,11 @@ internal class GoogleSheetFromRowEditor
         );
     }
 
-    public IList<IList<object>> GetSheet()
+    public async Task<IList<IList<object>>> GetSheet()
     {
         SpreadsheetsResource.ValuesResource.GetRequest request = _service.Spreadsheets.Values.Get(_spreadsheetId, _sheetNameAndRange);
 
-        ValueRange response = request.Execute();
+        ValueRange response = await request.ExecuteAsync();
         IList<IList<object>> sheet = response.Values;
         if (sheet != null && sheet.Count > 0)
         {

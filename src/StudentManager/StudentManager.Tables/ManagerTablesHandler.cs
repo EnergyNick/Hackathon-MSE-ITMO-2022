@@ -5,7 +5,7 @@ namespace StudentManager.Tables;
 
 internal record SheetConnectData(string SpreadsheetId, IConfiguration Configuration);
 
-public class ManagerTablesHandler : IGoogleSheet<>
+public class ManagerTablesHandler
 {
     private const string _spreadsheetId = "1Z4tV3gmqqDrfTH8W-clmsb6SK-e1r0MCcxEI4kiFVVw";
 

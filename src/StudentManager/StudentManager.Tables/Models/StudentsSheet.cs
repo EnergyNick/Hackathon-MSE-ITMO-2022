@@ -1,28 +1,24 @@
 ﻿namespace StudentManager.Tables.Models;
 
-public record StudentData(string Id, string IsuId, string Surname, string Name, string Patronymic,
-    string Telegram, string Email, string IdGroup);
-
-internal class StudentsSheet : BaseConnectToSheet<StudentData>
+public record StudentData : ISheetRowData
 {
+    public string Id { get; set; }
+    public string IsuId { get; set; }
+    public string Surname { get; set; }
+    public string Name { get; set; }
+    public string Patronymic { get; set; }
+    public string Telegram { get; set; }
+    public string Email { get; set; }
+    public string IdGroup { get; set; }
+}
+
+internal class StudentsSheet : GoogleSheetFromRowEditor<StudentData>
+{
+    protected override Dictionary<string, Action<StudentData, object>> InitializeValues { get; }
+    
     public StudentsSheet(SheetConnectData sheetConnectData) :
-        base(new GoogleSheetFromRowEditor(sheetConnectData, "Студенты"))
+        base(new GoogleSheetEditor(sheetConnectData, "Студенты"))
     {
         
-    }
-
-    protected override List<StudentData> Parse(IList<IList<object>> sheetValues, IList<AvailableColumn> availableColumns)
-    {
-        foreach (var column in availableColumns)
-        {
-            Console.WriteLine(column.Value);
-        }
-
-        return null;
-    }
-
-    protected override bool ContainsColumn(string nameColumn)
-    {
-        return true;
     }
 }
