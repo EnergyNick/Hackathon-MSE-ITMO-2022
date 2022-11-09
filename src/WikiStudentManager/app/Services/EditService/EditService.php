@@ -6,7 +6,6 @@ use App\Exceptions\IntegrationException;
 use App\Helpers\GetTokenHelper;
 use App\Http\Requests\EditRequests\FileEditRequest;
 use App\Responses\SuccessResponse;
-use GuzzleHttp\Psr7\Utils;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
 
@@ -47,5 +46,10 @@ class EditService implements EditServiceInterface
         }
 
         return SuccessResponse::response('file upload', ['name' => $name . $data['file']->extension()], 200);
+    }
+    
+    public function appendFile()
+    {
+
     }
 }

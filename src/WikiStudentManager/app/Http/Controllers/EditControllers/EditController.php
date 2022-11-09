@@ -28,8 +28,16 @@ class EditController extends BaseController
         return $this->service->edit();
     }
 
+    public function appendFile():JsonResponse
+    {
+        return $this->service->appendFile();
+    }
+
     /**
      * Upload file.
+     * 
+     * @param FileEditRequest $request
+     * @return JsonResponse
      */
     public function upload(FileEditRequest $request): JsonResponse
     {
