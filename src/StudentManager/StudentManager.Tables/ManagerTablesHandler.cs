@@ -7,15 +7,21 @@ internal record SheetConnectData(string SpreadsheetId, IConfiguration Configurat
 
 public class ManagerTablesHandler
 {
-    private const string _spreadsheetId = "1Z4tV3gmqqDrfTH8W-clmsb6SK-e1r0MCcxEI4kiFVVw";
+    public const string SpreadsheetId = "1Z4tV3gmqqDrfTH8W-clmsb6SK-e1r0MCcxEI4kiFVVw";
 
     public ManagerTablesHandler(IConfiguration configuration)
     {
-        // SheetConnectData connectData = new(_spreadsheetId, configuration);
-        // var list = new StudentsSheet(connectData).ReadAll().Result;
-        // foreach (var data in list)
-        // {
-        //     Console.WriteLine(data);
-        // }
+        SheetConnectData connectData = new(SpreadsheetId, configuration);
+        /*var list = new TeachersSheet(connectData).ReadAll().Result;
+        foreach (var data in list)
+        {
+            Console.WriteLine(data);
+        }*/
+        //StudentsStatementInSubgroups sheet = new StudentsStatementInSubgroups(connectData, configuration);
+        //var list = sheet.ReadAll().Result;
+        /*foreach (var data in list)
+        {
+            Console.WriteLine(data);
+        }*/
     }
 }
