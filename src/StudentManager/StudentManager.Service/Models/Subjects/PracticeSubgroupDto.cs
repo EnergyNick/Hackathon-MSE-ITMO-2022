@@ -1,9 +1,10 @@
-﻿namespace StudentManager.Service.Models.Subjects;
+﻿using StudentManager.Service.Models.Users;
+
+namespace StudentManager.Service.Models.Subjects;
 
 public record PracticeSubgroupDto
 {
     public string Id { get; init; }
-    public string SubjectId { get; init; }
-    public string TeacherId { get; init; }
     public string LinkToCSC { get; init; }
+    public TeacherDto Teacher { get; set; }
 }
