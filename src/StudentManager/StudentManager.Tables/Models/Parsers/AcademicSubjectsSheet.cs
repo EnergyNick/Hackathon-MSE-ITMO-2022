@@ -18,7 +18,7 @@ internal class AcademicSubjectsSheet : BaseGoogleSheetFromRowEditor<AcademicSubj
             new((data, value) => data.Term = value.ToString(), true),
     };
 
-    protected override string LeafSheet => "Предметы";
+    protected override int SheetId => 1936532220;
 
     public AcademicSubjectsSheet(SheetConnectData sheetConnectData) : base(sheetConnectData)
     {

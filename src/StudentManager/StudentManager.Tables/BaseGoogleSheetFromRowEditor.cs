@@ -9,13 +9,13 @@ internal abstract class BaseGoogleSheetFromRowEditor<T> : IManagerSheetEditor<T>
     protected record AvailableColumn(string Value, int Index);
 
     protected abstract Dictionary<string, ColumnCondition<T>> ColumnsDatas { get; }
-    protected abstract string LeafSheet { get; }
+    protected abstract int SheetId { get; }
 
     private readonly GoogleSheetEditor _googleSheetFromRowEditor;
 
     protected BaseGoogleSheetFromRowEditor(SheetConnectData sheetConnectData)
     {
-        _googleSheetFromRowEditor = new GoogleSheetEditor(sheetConnectData, LeafSheet);
+        _googleSheetFromRowEditor = new GoogleSheetEditor(sheetConnectData, SheetId);
     }
 
     public async Task<List<T>> ReadAll(LoadColumnBehaviour loadColumnBehaviour = LoadColumnBehaviour.ThrowException)
