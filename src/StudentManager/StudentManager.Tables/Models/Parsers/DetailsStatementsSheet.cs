@@ -13,8 +13,6 @@ internal class DetailsStatementsSheet : BaseGoogleSheetFromRowEditor<DetailsStat
 {
     protected override Dictionary<string, ColumnCondition<DetailsStatementData>> ColumnsDatas { get; } = new()
     {
-        ["ID"] =
-            new((data, value) => data.Id = value.ToString(), true),
         ["ID ведомости"] =
             new((data, value) => data.IdStatement = value.ToString(), true),
         ["Название"] =
@@ -29,5 +27,10 @@ internal class DetailsStatementsSheet : BaseGoogleSheetFromRowEditor<DetailsStat
     
     public DetailsStatementsSheet(SheetConnectData sheetConnectData) : base(sheetConnectData)
     {
+    }
+
+    protected override void InitAdditionalyParsedData(DetailsStatementData data)
+    {
+        data.Id = $"{data.IdStatement} - {data.Title}";
     }
 }
