@@ -5,15 +5,17 @@ internal class StudentsSheet : BaseGoogleSheetFromRowEditor<StudentData>
     protected override Dictionary<string, ColumnCondition<StudentData>> ColumnsDatas { get; } = new()
     {
         ["ID"] =
-            new((data, value) => data.Id = value.ToString(), true),
+            new((data, value) => data.Id = value.ToString()!, true),
         ["ID ИСУ"] =
-            new((data, value) => data.IsuId = value.ToString(), true),
-        ["Фамилия"] =
-            new((data, value) => data.Surname = value.ToString(), true),
-        ["Имя"] =
-            new((data, value) => data.Name = value.ToString(), true),
-        ["Отчество"] = 
-            new ((data, value) => data.Patronymic = value.ToString(), false),
+            new((data, value) => data.IsuId = value.ToString()!, true),
+        ["ФИО"] =
+            new ((data, value) =>
+            {
+                var fcs = value.ToString()!.Split();
+                data.Surname = fcs[0];
+                data.Name = fcs[1];
+                data.Patronymic = fcs.ElementAtOrDefault(2) ?? "";
+            }, true),
         ["Telegram"] = 
             new ((data, value) => data.Telegram = value.ToString(), true),
         ["Почта"] = 

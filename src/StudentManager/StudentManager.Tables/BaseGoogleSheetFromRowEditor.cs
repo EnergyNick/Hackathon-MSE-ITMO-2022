@@ -57,7 +57,7 @@ internal abstract class BaseGoogleSheetFromRowEditor<T> : IManagerSheetEditor<T>
         return availableColumns;
     }
 
-    protected List<T> Parse(IList<IList<object>> sheetValues, IList<AvailableColumn> availableColumns,
+    private List<T> Parse(IList<IList<object>> sheetValues, IList<AvailableColumn> availableColumns,
         LoadColumnBehaviour loadColumnBehaviour)
     {
         var datas = new List<T>();
