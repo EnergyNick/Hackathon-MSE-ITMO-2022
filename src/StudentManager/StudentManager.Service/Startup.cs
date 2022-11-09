@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.HttpOverrides;
 using StudentManager.Service.Extensions;
 using StudentManager.Service.Logger;
 using StudentManager.Service.Swagger;
+using StudentManager.Tables;
 
 namespace StudentManager.Service;
 
@@ -28,6 +29,9 @@ public class Startup
         });
 
         services.AddLazyCache();
+
+        services.AddGoogleSheetsEditors(Configuration);
+        services.AddTableWrappers();
 
         services.AddHttpClient();
 

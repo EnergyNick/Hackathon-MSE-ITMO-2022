@@ -7,7 +7,7 @@ namespace StudentManager.Service.Models.MappingProfiles;
 
 public class DomainMappingProfile : Profile
 {
-    protected DomainMappingProfile()
+    public DomainMappingProfile()
     {
         CreateMap<StudentData, StudentDto>()
             .ForMember(x => x.FirstName, dest => dest.MapFrom(x => x.Name))
