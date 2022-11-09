@@ -14,7 +14,7 @@ public class Main {
     
     
     public static void main(String[] args) {
-        Props.load();
+        Props.load(args.length >= 1? args[0] : "bot.properties");
         
         TelegramBot bot = new TelegramBot(Props.getProp("tg.bot.token"));
         bot.setUpdatesListener(

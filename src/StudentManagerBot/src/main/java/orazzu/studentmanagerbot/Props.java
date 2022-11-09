@@ -15,9 +15,9 @@ public class Props {
     private static final Properties PROPS = new Properties();
     
     
-    public static void load() {
+    public static void load(String path) {
         if (PROPS.isEmpty())
-            try (InputStream propsStream = new FileInputStream("bot.properties")) {
+            try (InputStream propsStream = new FileInputStream(path)) {
                 PROPS.load(propsStream);
             } catch (IOException e) {
                 LOGGER.error("Failed to read props", e);
