@@ -27,7 +27,7 @@ public class StudentController : ExtendedMappingController
     {
         var user = await _students.ReadByTelegramId(telegramId);
         if (user.IsFailed)
-            return NotFound();
+            return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
 
         return Mapper.Map<StudentDto>(user.Value);
     }
@@ -37,11 +37,11 @@ public class StudentController : ExtendedMappingController
     {
         var user = await _students.ReadByTelegramId(telegramId);
         if (user.IsFailed)
-            return NotFound();
+            return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
 
         var subjects = await _subjects.ReadByGroupId(user.Value.IdGroup);
         if (subjects.IsFailed)
-            return NotFound();
+            return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
 
         return Mapper.Map<SubjectInfoDto[]>(subjects.Value);
     }
