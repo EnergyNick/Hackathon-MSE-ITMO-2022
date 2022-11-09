@@ -13,6 +13,14 @@ public class ManagerTablesHandler
     {
         SheetConnectData connectData = new(SpreadsheetId, configuration);
         
+        /*new AcademicSubjectsSheet(connectData);
+        new DetailsStatementsSheet(connectData);
+        new GroupsSheet(connectData);
+        new StatementsSheet(connectData);
+        new StudentsSheet(connectData);
+        new SubgroupsOfPracticeSheet(connectData);
+        new TeachersSheet(connectData);
+        
         var statementsSheet = new StatementsSheet(connectData);
         var studentsSheet = new StudentsSheet(connectData);
         
@@ -21,7 +29,7 @@ public class ManagerTablesHandler
         foreach (var data in list)
         {
             Console.WriteLine(data);
-        }
+        }*/
         
         /*var list = new TeachersSheet(connectData).ReadAll().Result;
         foreach (var data in list)

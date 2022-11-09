@@ -27,6 +27,8 @@ internal abstract class BaseGoogleSheetFromRowEditor<T> : IManagerSheetEditor<T>
         return values;
     }
 
+    protected virtual void InitAdditionalyParsedData(T data) { }
+
     private List<AvailableColumn> CheckColumnsFromSpec(IList<IList<object>> sheetValues,
         LoadColumnBehaviour loadColumnBehaviour)
     {
@@ -36,7 +38,7 @@ internal abstract class BaseGoogleSheetFromRowEditor<T> : IManagerSheetEditor<T>
         for (int i = 0; i < namesColumn.Count; ++i)
         {
             var nameColumn = namesColumn[i].ToString();
-            if (requiredColumnsClone.Contains(nameColumn))
+            if (ColumnsDatas.ContainsKey(nameColumn))
             {
                 availableColumns.Add(new AvailableColumn(nameColumn, i));
                 requiredColumnsClone.Remove(nameColumn);
@@ -64,16 +66,21 @@ internal abstract class BaseGoogleSheetFromRowEditor<T> : IManagerSheetEditor<T>
         for (int i = 1; i < sheetValues.Count; i++)
         {
             var data = new T();
-            foreach (var column in availableColumns)
+            for (var j = 0; j < availableColumns.Count && j < sheetValues[i].Count; j++)
             {
+                var column = availableColumns[j];
                 var columnData = ColumnsDatas[column.Value];
+                object value = sheetValues[i][column.Index];
+                string valueStr = sheetValues[i][column.Index].ToString();
                 if (loadColumnBehaviour == LoadColumnBehaviour.ThrowException &&
-                    columnData.IsRequired && sheetValues[i][column.Index].ToString() == "")
+                    columnData.IsRequired && valueStr is "" or "-")
                     throw new InvalidOperationException(
                         $"The value in the required column is empty:\nColumn Name: {column.Value}\nIndex Row: {i}");
-                
-                ColumnsDatas[column.Value].FillValue.Invoke(data, sheetValues[i][column.Index]);
+
+                columnData.FillValue.Invoke(data, sheetValues[i][column.Index]);
             }
+
+            InitAdditionalyParsedData(data);
             datas.Add(data);
         }
 

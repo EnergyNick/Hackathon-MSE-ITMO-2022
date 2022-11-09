@@ -21,6 +21,8 @@ public interface IGradeSheetEditor
 
 internal class StudentsStatementInSubgroups : IGradeSheetEditor
 {
+    private record Test(string Name, List<string> Values, string MaxValue);
+    
     private readonly StatementsSheet _statementsSheet;
     private readonly StudentsSheet _studentsSheet;
     private readonly SheetConnectData _sheetConnect;
@@ -39,12 +41,8 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             $"{student.Surname} {student.Name}";
 
         string GetPathInSheet(string idLeafSheet, string studentsStartCell) =>
-            $"{idLeafSheet}!{studentsStartCell}:{studentsStartCell.Substring(studentsStartCell.ToList().FindIndex((c) => c >= '0' && c <= '9'))}";
+            $"'{idLeafSheet}'!{studentsStartCell}:{studentsStartCell.Remove(studentsStartCell.ToList().FindIndex((c) => c >= '0' && c <= '9'))}";
 
-        int GetIndexSplitPathInSheet(string startCell) =>
-            startCell.ToList().FindIndex((c) => c >= '0' && c <= '9');
-            
-        
         string GetMaxValue(StatementSheetData statementData) => statementData.GrateType switch
         {
             GrateType.Ratio => 1.ToString(),
@@ -56,45 +54,71 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             (student) => new StudentGratesData(student, new()));
         var allStatements = await _statementsSheet.ReadAll();
         var statementsDetailsSheet = new DetailsStatementsSheet(_sheetConnect);
-        var allStatementsDetails = (await statementsDetailsSheet.ReadAll()).
-            ToDictionary((details) => details.Id);
+        var allStatementsDetailsList = await statementsDetailsSheet.ReadAll();
+        var allStatementsDetails = new Dictionary<string, List<DetailsStatementData>>();
+        foreach (var detailsStatementData in allStatementsDetailsList)
+        {
+            if (allStatementsDetails.TryGetValue(detailsStatementData.IdStatement, out var list) == false)
+            {
+                list = new List<DetailsStatementData>();
+                allStatementsDetails.Add(detailsStatementData.IdStatement, list);
+            }
+            list.Add(detailsStatementData);
+        }
 
-        var studentsStatementInSubgroups = new List<SubgroupOfStudentData>();
         foreach (var statement in allStatements)
         {
             var connectStatementData = new SheetConnectData(statement.IdSheet, _sheetConnect.Configuration);
-            /*var studentsStatementSheetEditor = new GoogleSheetEditor(connectStatementData,
+            var studentsStatementSheetEditor = new GoogleSheetEditor(connectStatementData,
                 GetPathInSheet(statement.IdLeafSheet, statement.StudentsStartCell));
             var students = studentsStatementSheetEditor.GetSheet().Result;
 
+            var debug = GetPathInSheet(statement.IdLeafSheet, statement.PointsStartCell);
             var pointsStudentsSheetEditor = new GoogleSheetEditor(connectStatementData,
                 GetPathInSheet(statement.IdLeafSheet, statement.PointsStartCell));
-            var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;*/
+            var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;
 
-            var statementGrateSheetEditor = new GoogleSheetEditor(connectStatementData, statement.IdLeafSheet);
-            var statementGrates = await statementGrateSheetEditor.GetSheet();
-            int indexSplitPathInStudentsSheet = GetIndexSplitPathInSheet(statement.PointsStartCell);
-            /*var students = 
+            var columnsPartsStatements = new List<Test>();
+            foreach (var detailsStatement in allStatementsDetails[statement.Id])
+            {
+                var details = await new GoogleSheetEditor(connectStatementData,
+                    GetPathInSheet(statement.IdLeafSheet, detailsStatement.PointsStartCell)).GetSheet();
+                var list = new List<string>();
+                foreach (var detail in details)
+                    if (detail.Count > 0)
+                        list.Add(detail[0].ToString());
+                    else
+                        list.Add("");
 
-            var studentGrades = new List<SubgroupOfStudentData>();
+                string maxPoints = (await new GoogleSheetEditor(connectStatementData,
+                    GetPathInSheet(statement.IdLeafSheet, detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
+                
+                columnsPartsStatements.Add(new Test(detailsStatement.Title, list, maxPoints));
+            }
+
             for (int i = 0; i < students.Count && i < pointsStudents.Count; i++)
             {
                 var student = students[i][0].ToString().Split();
                 var pointsStudent = pointsStudents[i][0].ToString();
 
+                if (student.Length < 2)
+                    continue;
+
                 if (studentsGrates.TryGetValue($"{student[0]} {student[1]}", out StudentGratesData studentData) == false)
-                    break;
-                
+                    continue;
+
+                var studentsParts = new List<GratePartData>();
+                foreach (var detailsStatement in columnsPartsStatements)
+                    studentsParts.Add(new GratePartData(detailsStatement.Name,
+                        detailsStatement.Values[i], detailsStatement.MaxValue));
+
                 studentData.Subgroups.Add(new SubgroupOfStudentData()
                 {
                     SubjectId = statement.IdSubject,
                     SubgroupId = statement.StatementType == StatementType.Practice ? statement.IdSubgroup : null,
-                    SubjectGrate = new SubjectGrateData(statement.BlockName, pointsStudent, GetMaxValue(statement), new List<GratePartData>()
-                    {
-                        
-                    }),
+                    SubjectGrate = new SubjectGrateData(statement.BlockName, pointsStudent, GetMaxValue(statement), studentsParts),
                 });
-            }*/
+            }
         }
 
         return studentsGrates.Values.ToList();
