@@ -29,11 +29,16 @@ class KeyValue extends Model
      */
     protected $guarded = ['id'];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     public static function getOfKey(string $key)
     {
-        return SELF::where('key', $key)->first()->value;
+        return SELF::where('key', $key)->first();
+    }
+
+    public static function getOfKeyOrFail(string $key)
+    {
+        return SELF::where('key', $key)->firstOrFail()->value;
     }
 
     public static function setOfKey(string $key, string $value)

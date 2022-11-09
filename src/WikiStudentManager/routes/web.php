@@ -19,6 +19,6 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['namespace' => 'AuthControllers'], function () use ($router) {
+$router->group(['namespace' => 'AuthControllers', 'middleware' => 'auth'], function () use ($router) {
     $router->get('/test', 'AuthController@auth');
 });

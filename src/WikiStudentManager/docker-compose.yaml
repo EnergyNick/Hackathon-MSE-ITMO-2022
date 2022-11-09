@@ -10,6 +10,7 @@ x-php: &php
   environment:
     - APP_DEBUG=true
     - DB_CONNECTION=sqlite
+    - DB_DATABASE=/app/database/database.sqlite
     - APP_KEY:base64:d1k91AgNcf1g7t/SVxBwE3u4NFK/I3vMH8Gyzl2Rvrs=
 
 services:

@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Responses\ErrorResponse;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;
@@ -49,6 +50,9 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+            return ErrorResponse::response($exception->getMessage(), null, 404);
+        }
         return parent::render($request, $exception);
     }
 }
