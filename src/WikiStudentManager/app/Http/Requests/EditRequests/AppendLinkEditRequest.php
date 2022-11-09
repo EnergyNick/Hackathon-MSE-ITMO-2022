@@ -4,7 +4,7 @@ namespace App\Http\Requests\EditRequests;
 
 use App\Http\Requests\BaseRequest;
 
-class AppendFileEditRequest extends BaseRequest
+class AppendLinkEditRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,9 +26,8 @@ class AppendFileEditRequest extends BaseRequest
         return [
             'section.required' => 'field must not be empty',
             'section.integer' => 'field must be integer',
-            'filename.required' => 'field must not be empty',
-            'filename.max' => 'max length 255',
-            'filename.string' => 'field must be string',
+            'link.required' => 'field must not be empty if exists',
+            'link.string' => 'field must be string',
             'tag.required' => 'field must not be empty',
             'tag.max' => 'max length 255',
             'tag.string' => 'field must be string',
@@ -44,7 +43,7 @@ class AppendFileEditRequest extends BaseRequest
     {
         return [
             'section' => 'required|integer',
-            'filename' => 'required|string|max:255',
+            'link' => 'required|string',
             'tag' => 'required|string|max:255',
         ];
     }

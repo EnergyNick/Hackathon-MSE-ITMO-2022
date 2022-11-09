@@ -24,9 +24,13 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
         $router->get('/test', 'AuthController@auth');
     });
 
-    //[https://github.com/EnergyNick/Hackathon-MSE-ITMO-2022 Ссылка на репозиторий]
+    // [https://github.com/EnergyNick/Hackathon-MSE-ITMO-2022 Ссылка на репозиторий]
     $router->group(['namespace' => 'EditControllers'], function () use ($router) {
         $router->post('/append-file', 'EditController@appendFile');
+    });
+
+    $router->group(['namespace' => 'EditControllers'], function () use ($router) {
+        $router->post('/append-link', 'EditController@appendLink');
     });
 
     $router->group(['namespace' => 'EditControllers'], function () use ($router) {
