@@ -92,7 +92,7 @@ public class StudentController : ExtendedMappingController
             var subSheetData = statementsBySubject.FirstOrDefault(x => x.IdSubgroup == subgroup.Value.Id);
             if (subSheetData is not null)
                 practiceStatement =
-                    $"https://docs.google.com/spreadsheets/d/{subSheetData.IdSheet}/edit#gid={subSheetData.IdLeafSheet}";
+                    $"https://docs.google.com/spreadsheets/d/{subSheetData.SpreadsheetId}/edit#gid={subSheetData.SheetId}";
         }
 
         string? lectorStatement = null;
@@ -103,7 +103,7 @@ public class StudentController : ExtendedMappingController
         var sheetData = statementsBySubject.FirstOrDefault(x => x.StatementType == StatementType.Lecture);
         if (sheetData is not null)
             lectorStatement =
-                $"https://docs.google.com/spreadsheets/d/{sheetData.IdSheet}/edit#gid={sheetData.IdLeafSheet}";
+                $"https://docs.google.com/spreadsheets/d/{sheetData.SpreadsheetId}/edit#gid={sheetData.SheetId}";
 
         return Ok(new UserSubjectInfoDto(subjectDto, subgroupDto, lectorStatement, practiceStatement));
     }
