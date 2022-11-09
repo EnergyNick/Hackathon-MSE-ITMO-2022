@@ -10,7 +10,7 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
 {
     private readonly string _cacheDictByTelegramIdKey;
 
-    public StudentsTableWrapper(IGoogleSheet<StudentData> sheet, IAppCache appCache, ILogger logger)
+    public StudentsTableWrapper(IManagerSheetEditor<StudentData> sheet, IAppCache appCache, ILogger logger)
         : base(sheet, appCache, logger)
     {
         _cacheDictByTelegramIdKey = $"{GetType().Name}-ByTelegramId";

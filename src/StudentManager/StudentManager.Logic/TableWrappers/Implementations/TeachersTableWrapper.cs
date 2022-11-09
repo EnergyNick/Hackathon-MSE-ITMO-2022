@@ -7,7 +7,7 @@ namespace StudentManager.Logic.TableWrappers.Implementations;
 
 public class TeachersTableWrapper : BaseTableWrapper<TeacherData>
 {
-    public TeachersTableWrapper(IGoogleSheet<TeacherData> sheet, IAppCache appCache, ILogger logger)
+    public TeachersTableWrapper(IManagerSheetEditor<TeacherData> sheet, IAppCache appCache, ILogger logger)
         : base(sheet, appCache, logger)
     {
     }

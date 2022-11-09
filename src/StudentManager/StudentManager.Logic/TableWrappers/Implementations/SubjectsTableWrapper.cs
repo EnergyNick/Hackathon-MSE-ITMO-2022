@@ -9,8 +9,8 @@ namespace StudentManager.Logic.TableWrappers.Implementations;
 public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
 {
     private readonly string _cacheDictByGroupIdKey;
-    
-    public SubjectsTableWrapper(IGoogleSheet<AcademicSubjectData> sheet, IAppCache appCache, ILogger logger)
+
+    public SubjectsTableWrapper(IManagerSheetEditor<AcademicSubjectData> sheet, IAppCache appCache, ILogger logger)
         : base(sheet, appCache, logger)
     {
         _cacheDictByGroupIdKey = $"{GetType().Name}-ByGroupId";

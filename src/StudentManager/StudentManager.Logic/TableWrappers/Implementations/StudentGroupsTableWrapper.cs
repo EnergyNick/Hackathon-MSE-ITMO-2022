@@ -7,7 +7,7 @@ namespace StudentManager.Logic.TableWrappers.Implementations;
 
 public class StudentGroupsTableWrapper : BaseTableWrapper<GroupData>
 {
-    public StudentGroupsTableWrapper(IGoogleSheet<GroupData> sheet, IAppCache appCache, ILogger logger)
+    public StudentGroupsTableWrapper(IManagerSheetEditor<GroupData> sheet, IAppCache appCache, ILogger logger)
         : base(sheet, appCache, logger)
     {
     }

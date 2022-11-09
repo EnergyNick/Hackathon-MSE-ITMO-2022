@@ -7,7 +7,7 @@ namespace StudentManager.Logic.TableWrappers.Implementations;
 
 public class PracticeSubgroupsTableWrapper : BaseTableWrapper<SubgroupOfPracticeData>
 {
-    public PracticeSubgroupsTableWrapper(IGoogleSheet<SubgroupOfPracticeData> sheet, IAppCache appCache, ILogger logger)
+    public PracticeSubgroupsTableWrapper(IManagerSheetEditor<SubgroupOfPracticeData> sheet, IAppCache appCache, ILogger logger)
         : base(sheet, appCache, logger)
     {
     }

@@ -10,11 +10,11 @@ namespace StudentManager.Logic.TableWrappers;
 public abstract class BaseTableWrapper<T> : ITableWrapper<T>
     where T: ISheetRowData
 {
-    protected readonly IGoogleSheet<T> Sheet;
+    protected readonly IManagerSheetEditor<T> Sheet;
     protected readonly IAppCache AppCache;
     protected readonly ILogger Logger;
 
-    protected BaseTableWrapper(IGoogleSheet<T> sheet, IAppCache appCache, ILogger logger)
+    protected BaseTableWrapper(IManagerSheetEditor<T> sheet, IAppCache appCache, ILogger logger)
     {
         Sheet = sheet;
         AppCache = appCache;
