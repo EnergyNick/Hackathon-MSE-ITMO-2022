@@ -37,15 +37,17 @@ class GetTokenHelper
     public static function csrf(): string|null
     {
         $url = config('wiki.url') . config('wiki.token_edit');
-        $request = Http::get($url);
+        $headers = ['Cookie' => request()->get('Cookie')];
+        $request = Http::withHeaders($headers)->get($url);
         $json = $request->json() ?? [];
+
         if (
             array_key_exists('query', $json) &&
             array_key_exists('tokens', $json['query']) &&
             array_key_exists('csrftoken', $json['query']['tokens'])
         ) {
             $token = $json['query']['tokens']['csrftoken'];
-            throw_if($token = "+\\", new IntegrationException('empty token received', null, 408));
+            throw_if(($token == "+\\"), new IntegrationException('empty token received', null, 408));
             static::$cookies = $request->cookies()->toArray();
             return $token;
         } else {

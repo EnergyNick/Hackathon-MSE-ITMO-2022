@@ -27,4 +27,8 @@ $router->group(['middleware' => 'auth'], function () use ($router) {
     $router->group(['namespace' => 'EditControllers'], function () use ($router) {
         $router->get('/edit', 'EditController@edit');
     });
+
+    $router->group(['namespace' => 'EditControllers'], function () use ($router) {
+        $router->post('/upload', 'EditController@upload');
+    });
 });

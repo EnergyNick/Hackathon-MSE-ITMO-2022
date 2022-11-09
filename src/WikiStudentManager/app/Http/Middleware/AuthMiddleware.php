@@ -28,6 +28,7 @@ class AuthMiddleware
                     $cookie .= $c['Name'] . '=' . $c['Value'] . '; ';
                 }
             }
+            $cookie = substr($cookie, 0, -2);
             KeyValue::setOfKey($key, $cookie);
         }
         
