@@ -34,7 +34,7 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
 
         return dict.TryGetValue(groupId, out var value)
             ? Result.Ok(value)
-            : Result.Fail(CantFindErrorMessage(groupId));
+            : Result.Fail(CantFindTgErrorMessage(groupId));
     }
 
     private string CantFindTgErrorMessage(string id) => $"Can't find subjects in {GetType().Name} by group id {id}";

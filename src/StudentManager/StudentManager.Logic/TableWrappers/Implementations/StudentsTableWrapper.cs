@@ -33,7 +33,7 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
 
         return dict.TryGetValue(telegramId, out var value)
             ? Result.Ok(value)
-            : Result.Fail(CantFindErrorMessage(telegramId));
+            : Result.Fail(CantFindTgErrorMessage(telegramId));
     }
 
     private string CantFindTgErrorMessage(string id) => $"Can't find telegram in {GetType().Name} by id {id}";
