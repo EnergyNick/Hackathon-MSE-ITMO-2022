@@ -75,8 +75,8 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
             return new List<T>();
         }
 
-        AppCache.Add(CacheKey, items, CacheLifeTime);
-        AppCache.Add(CacheDictByIdKey, items.ToDictionary(x => x.Id), CacheLifeTime);
+        AppCache.Add(CacheKey, items, GetCacheOptions());
+        AppCache.Add(CacheDictByIdKey, items.ToDictionary(x => x.Id), GetCacheOptions());
         return items;
     }
 

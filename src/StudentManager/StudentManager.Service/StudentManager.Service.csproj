@@ -24,9 +24,4 @@
       <ProjectReference Include="..\StudentManager.Logic\StudentManager.Logic.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Models\MappingProfiles" />
-      <Folder Include="Models\Users" />
-    </ItemGroup>
-
 </Project>
