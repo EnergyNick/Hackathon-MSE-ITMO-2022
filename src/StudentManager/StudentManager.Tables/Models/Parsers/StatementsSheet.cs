@@ -42,7 +42,7 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
         return value.ToString() switch
         {
             "Соотношение" => GrateType.Ratio,
-            "Пероценты" => GrateType.Percent,
+            "Проценты" => GrateType.Percent,
             "Сумма" => GrateType.Sum,
         };
     }
