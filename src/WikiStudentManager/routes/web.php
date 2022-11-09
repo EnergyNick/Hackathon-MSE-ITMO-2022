@@ -19,6 +19,12 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->group(['namespace' => 'AuthControllers', 'middleware' => 'auth'], function () use ($router) {
-    $router->get('/test', 'AuthController@auth');
+$router->group(['middleware' => 'auth'], function () use ($router) {
+    $router->group(['namespace' => 'AuthControllers'], function () use ($router) {
+        $router->get('/test', 'AuthController@auth');
+    });
+
+    $router->group(['namespace' => 'EditControllers'], function () use ($router) {
+        $router->get('/edit', 'EditController@edit');
+    });
 });

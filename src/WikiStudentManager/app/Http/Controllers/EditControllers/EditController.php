@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\AuthControllers;
+namespace App\Http\Controllers\EditControllers;
 
 use App\Http\Controllers\BaseController;
-use App\Services\AuthService\AuthServiceInterface;
+use App\Services\EditService\EditServiceInterface;
 use Illuminate\Http\JsonResponse;
 
 class EditController extends BaseController
@@ -14,13 +14,16 @@ class EditController extends BaseController
      * @param AuthService
      * @return void
      */
-    public function __construct(AuthServiceInterface $service)
+    public function __construct(EditServiceInterface $service)
     {
         $this->service = $service;
     }
 
-    public function auth(): JsonResponse
+    /**
+     * Edit page.
+     */
+    public function edit(): JsonResponse
     {
-        return $this->service->auth();
+        return $this->service->edit();
     }
 }

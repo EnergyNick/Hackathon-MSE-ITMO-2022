@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Services\AuthService;
+namespace App\Services\EditService;
 
-use App\Helpers\Auth;
 use Illuminate\Http\JsonResponse;
 
-class AuthService implements AuthServiceInterface
+class EditService implements EditServiceInterface
 {
-    public function auth(): JsonResponse
+    public function edit(): JsonResponse
     {
-        $response = Auth::authUser();
+        dd(1);
 
-        return response()->json($response->json(), 200);
+        return response()->json(['d' => 's'], 200);
     }
 }
