@@ -1,82 +1,102 @@
-﻿using System.Security.Cryptography;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 
 namespace StudentManager.Tables.Models;
 
 public record GratePartData(string Name, string Value, string MaxValue);
 public record SubjectGrateData(string Name, string CurrentValue, string MaxValue, List<GratePartData> Parts);
 
-public record StudentGradeInSubgroupData
+public record SubgroupOfStudentData
 {
-    public StudentData StudentData { get; set; }
+    public string SubjectId { get; set; }
     public string? SubgroupId { get; set; }
-    public List<SubjectGrateData> SubjectGrates { get; set; }
+    public SubjectGrateData SubjectGrate { get; set; }
 }
 
-public record SubjectStatementData(List<StudentGradeInSubgroupData> Students);
+public record StudentGratesData(StudentData Student, List<SubgroupOfStudentData> Subgroups);
 
 public interface IGradeSheetEditor
 {
-    Task<List<SubjectStatementData>> ReadAll();
+    Task<List<StudentGratesData>> ReadAll();
 };
 
 internal class StudentsStatementInSubgroups : IGradeSheetEditor
 {
     private readonly StatementsSheet _statementsSheet;
     private readonly StudentsSheet _studentsSheet;
-    private readonly IConfiguration _configuration;
+    private readonly SheetConnectData _sheetConnect;
     
     public StudentsStatementInSubgroups(StatementsSheet statementsSheet, StudentsSheet studentsSheet,
-        IConfiguration configuration)
+        SheetConnectData sheetConnect)
     {
         _statementsSheet = statementsSheet;
         _studentsSheet = studentsSheet;
-        _configuration = configuration;
+        _sheetConnect = sheetConnect;
     }
 
-    public async Task<List<SubjectStatementData>> ReadAll()
+    public async Task<List<StudentGratesData>> ReadAll()
     {
         string GetFCsStudent(StudentData student) =>
-            $"{student.Surname} {student.Name}{(student.Patronymic != "" ? $" {student.Patronymic}" : "")}";
+            $"{student.Surname} {student.Name}";
 
-        var allStudents = await _studentsSheet.ReadAll();
-        var allStudentsDictionary = allStudents.
-            ToDictionary(GetFCsStudent);
+        string GetPathInSheet(string idLeafSheet, string studentsStartCell) =>
+            $"{idLeafSheet}!{studentsStartCell}:{studentsStartCell.Substring(studentsStartCell.ToList().FindIndex((c) => c >= '0' && c <= '9'))}";
+
+        int GetIndexSplitPathInSheet(string startCell) =>
+            startCell.ToList().FindIndex((c) => c >= '0' && c <= '9');
+            
+        
+        string GetMaxValue(StatementSheetData statementData) => statementData.GrateType switch
+        {
+            GrateType.Ratio => 1.ToString(),
+            GrateType.Percent => 100.ToString(),
+            GrateType.Sum => statementData.MaximumGrateCell,
+        };
+        
+        var studentsGrates = (await _studentsSheet.ReadAll()).ToDictionary(GetFCsStudent,
+            (student) => new StudentGratesData(student, new()));
         var allStatements = await _statementsSheet.ReadAll();
+        var statementsDetailsSheet = new DetailsStatementsSheet(_sheetConnect);
+        var allStatementsDetails = (await statementsDetailsSheet.ReadAll()).
+            ToDictionary((details) => details.Id);
 
-        var studentsStatementInSubgroups = new List<SubjectStatementData>();
+        var studentsStatementInSubgroups = new List<SubgroupOfStudentData>();
         foreach (var statement in allStatements)
         {
-            var connectStatementData = new SheetConnectData(statement.IdSheet, _configuration);
-            var studentsStatementSheetEditor = new GoogleSheetEditor(connectStatementData,
-                $"{statement.IdLeafSheet}!{statement.StudentsStartCell}:{statement.StudentsStartCell[0]}");
+            var connectStatementData = new SheetConnectData(statement.IdSheet, _sheetConnect.Configuration);
+            /*var studentsStatementSheetEditor = new GoogleSheetEditor(connectStatementData,
+                GetPathInSheet(statement.IdLeafSheet, statement.StudentsStartCell));
             var students = studentsStatementSheetEditor.GetSheet().Result;
 
             var pointsStudentsSheetEditor = new GoogleSheetEditor(connectStatementData,
-                $"{statement.IdLeafSheet}!{statement.PointsStartCell}:{statement.PointsStartCell[0]}");
-            var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;
+                GetPathInSheet(statement.IdLeafSheet, statement.PointsStartCell));
+            var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;*/
 
-            var studentGrades = new List<StudentGradeInSubgroupData>();
+            var statementGrateSheetEditor = new GoogleSheetEditor(connectStatementData, statement.IdLeafSheet);
+            var statementGrates = await statementGrateSheetEditor.GetSheet();
+            int indexSplitPathInStudentsSheet = GetIndexSplitPathInSheet(statement.PointsStartCell);
+            /*var students = 
+
+            var studentGrades = new List<SubgroupOfStudentData>();
             for (int i = 0; i < students.Count && i < pointsStudents.Count; i++)
             {
-                var student = students[i][0].ToString();
+                var student = students[i][0].ToString().Split();
                 var pointsStudent = pointsStudents[i][0].ToString();
 
-                if (allStudentsDictionary.TryGetValue(student, out StudentData studentData))
+                if (studentsGrates.TryGetValue($"{student[0]} {student[1]}", out StudentGratesData studentData) == false)
+                    break;
+                
+                studentData.Subgroups.Add(new SubgroupOfStudentData()
                 {
-                    studentGrades.Add(new StudentGradeInSubgroupData()
+                    SubjectId = statement.IdSubject,
+                    SubgroupId = statement.StatementType == StatementType.Practice ? statement.IdSubgroup : null,
+                    SubjectGrate = new SubjectGrateData(statement.BlockName, pointsStudent, GetMaxValue(statement), new List<GratePartData>()
                     {
-                        StudentData = studentData,
-                        SubgroupId = statement.IdSubgroup,
-                        SubjectGrates = new List<SubjectGrateData>()
-                        {
-                            
-                        },
-                    });
-                }
-            }
+                        
+                    }),
+                });
+            }*/
         }
 
-        return studentsStatementInSubgroups;
+        return studentsGrates.Values.ToList();
     }
 }
