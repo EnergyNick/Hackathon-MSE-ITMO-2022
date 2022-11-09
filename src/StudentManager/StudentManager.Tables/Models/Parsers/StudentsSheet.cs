@@ -22,7 +22,7 @@ internal class StudentsSheet : BaseGoogleSheetFromRowEditor<StudentData>
             new ((data, value) => data.IdGroup = value.ToString(), true),
     };
 
-    protected override string LeafSheet => "Студенты";
+    protected override int SheetId => 0;
 
     public StudentsSheet(SheetConnectData sheetConnectData)
         : base(sheetConnectData)

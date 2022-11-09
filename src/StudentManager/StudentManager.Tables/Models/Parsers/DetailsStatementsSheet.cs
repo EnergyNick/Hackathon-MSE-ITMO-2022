@@ -23,7 +23,7 @@ internal class DetailsStatementsSheet : BaseGoogleSheetFromRowEditor<DetailsStat
             new((data, value) => data.MaximumGrateCell = value.ToString(), false),
     };
 
-    protected override string LeafSheet => "Детали ведомостей";
+    protected override int SheetId => 845033275;
     
     public DetailsStatementsSheet(SheetConnectData sheetConnectData) : base(sheetConnectData)
     {

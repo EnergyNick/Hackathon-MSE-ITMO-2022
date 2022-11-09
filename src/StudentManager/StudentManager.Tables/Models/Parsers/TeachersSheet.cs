@@ -20,7 +20,7 @@ internal class TeachersSheet : BaseGoogleSheetFromRowEditor<TeacherData>
             new ((data, value) => data.Email = value.ToString(), true),
     };
 
-    protected override string LeafSheet => "Преподаватели";
+    protected override int SheetId => 570238076;
     
     public TeachersSheet(SheetConnectData sheetConnectData)
         : base(sheetConnectData)

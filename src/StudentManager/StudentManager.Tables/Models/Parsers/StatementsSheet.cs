@@ -14,10 +14,13 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
             new((data, value) => data.IdSubgroup = value.ToString(), false),
         ["Название блока"] =
             new((data, value) => data.BlockName = value.ToString(), true),
-        ["ID таблицы ведомости"] =
-            new((data, value) => data.IdSheet = value.ToString(), true),
-        ["Имя листа"] =
-            new((data, value) => data.IdLeafSheet = value.ToString(), true),
+        ["Ссылка на успеваемость с листом"] =
+            new((data, value) =>
+            {
+                string path = value.ToString();
+                data.SpreadsheetId = path.Split("https://docs.google.com/spreadsheets/d/")[1].Split("/edit")[0];
+                data.SheetId = Convert.ToInt32(path.Split("#gid=")[1]);
+            }, true),
         ["Ячейка начала студентов"] =
             new((data, value) => data.StudentsStartCell = value.ToString(), true),
         ["Ячейка начала успеваемости"] =
@@ -47,7 +50,7 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
         };
     }
 
-    protected override string LeafSheet => "Ведомости";
+    protected override int SheetId => 1497878140;
     
     public StatementsSheet(SheetConnectData sheetConnectData)
         : base(sheetConnectData)

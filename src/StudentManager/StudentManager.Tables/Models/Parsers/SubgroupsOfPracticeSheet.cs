@@ -14,7 +14,7 @@ internal class SubgroupsOfPracticeSheet : BaseGoogleSheetFromRowEditor<SubgroupO
             new((data, value) => data.LinkToCSC = value.ToString(), true),
     };
 
-    protected override string LeafSheet => "Подгруппы практик";
+    protected override int SheetId => 368002650;
     
     public SubgroupsOfPracticeSheet(SheetConnectData sheetConnectData)
         : base(sheetConnectData)

@@ -12,7 +12,7 @@ internal class GroupsSheet : BaseGoogleSheetFromRowEditor<GroupData>
             new((data, value) => data.LinkToGoogleGroup = value.ToString(), true),
     };
     
-    protected override string LeafSheet => "Группы";
+    protected override int SheetId => 982408780;
 
     public GroupsSheet(SheetConnectData sheetConnectData) : base(sheetConnectData)
     {
