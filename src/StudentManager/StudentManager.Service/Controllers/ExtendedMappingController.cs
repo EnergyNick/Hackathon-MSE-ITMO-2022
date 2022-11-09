@@ -44,6 +44,15 @@ public abstract class ExtendedMappingController : Controller
 
     protected static ActionResult CreateFailResult(IEnumerable<IError> errors, HttpStatusCode errorStatusCode = HttpStatusCode.BadRequest)
     {
+        var message = errors.Select(x => x.Message).FirstOrDefault(x => x != null);
+        if (message is not null)
+            return new ObjectResult(message) { StatusCode = (int) errorStatusCode };
+        return new StatusCodeResult((int) errorStatusCode);
+    }
+
+    protected static ActionResult CreateFailResultWithMultiplyMessages(IEnumerable<IError> errors,
+        HttpStatusCode errorStatusCode = HttpStatusCode.BadRequest)
+    {
         var messages = errors.Select(x => x.Message).Where(x => x != null);
         if (messages.Any())
             return new ObjectResult(messages) { StatusCode = (int) errorStatusCode };
