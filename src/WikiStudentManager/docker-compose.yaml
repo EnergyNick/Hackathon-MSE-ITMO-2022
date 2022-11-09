@@ -17,40 +17,13 @@ services:
   php:
     ports:
     - "8080:80"
-    depends_on:
-      - database
+    # depends_on:
+    #   - database
     <<: *php
 
-  database:
-    <<: *php
-    command: php artisan migrate --force
-
-  # postgres:
-  #   image: postgres
-  #   restart: unless-stopped
-  #   environment:
-  #     POSTGRES_DB: app
-  #     POSTGRES_USER: postgres
-  #     POSTGRES_PASSWORD: password
-
-  #   networks:
-  #     - internal
-
-  # pgadmin:
-  #   container_name: pgadmin_container
-  #   image: dpage/pgadmin4
-  #   environment:
-  #     PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-  #     PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-  #     PGADMIN_CONFIG_SERVER_MODE: 'False'
-  #   volumes:
-  #     - "./.pgadmin:/root/.pgadmin"
-  #   depends_on:
-  #     - postgres
-  #   ports:
-  #     - ${PGADMIN_PORT:-5050}:80
-  #   networks:
-  #     - internal
+  # database:
+  #   <<: *php
+  #   command: php artisan migrate --force
 
   composer:
     image: composer:2.1.12

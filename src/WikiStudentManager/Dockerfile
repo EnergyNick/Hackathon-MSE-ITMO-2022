@@ -25,4 +25,4 @@ EXPOSE 80
 
 USER student
 
-CMD php -S 0.0.0.0:80 -t public
+CMD php artisan migrate --force && php -S 0.0.0.0:80 -t public
