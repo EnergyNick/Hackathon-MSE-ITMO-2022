@@ -20,9 +20,8 @@ RUN composer dump-autoload
 
 RUN chmod a=rwx -R ./storage/logs/
 RUN touch ./database/database.sqlite
-
+RUN chown -R student ./database
 EXPOSE 80
 
 USER student
-
 CMD php artisan migrate --force && php -S 0.0.0.0:80 -t public

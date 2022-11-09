@@ -25,12 +25,12 @@ services:
   #   <<: *php
   #   command: php artisan migrate --force
 
-  composer:
-    image: composer:2.1.12
-    working_dir: /comp
-    volumes:
-      - "./:/comp"
-    command: composer install --ignore-platform-reqs
+  # composer:
+  #   image: composer:2.1.12
+  #   working_dir: /comp
+  #   volumes:
+  #     - "./:/comp"
+  #   command: composer install --ignore-platform-reqs
 
 networks:
   internal:
