@@ -1,5 +1,4 @@
-﻿using FluentResults;
-using LazyCache;
+﻿using LazyCache;
 using Serilog;
 using StudentManager.Tables;
 using StudentManager.Tables.Models;
@@ -24,7 +23,7 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
         return result;
     }
 
-    public virtual async Task<Result<AcademicSubjectData[]>> ReadByGroupId(string groupId)
+    public virtual async Task<AcademicSubjectData[]> ReadByGroupId(string groupId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, AcademicSubjectData[]>>(_cacheDictByGroupIdKey, out var dict))
         {
@@ -33,9 +32,7 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
         }
 
         return dict.TryGetValue(groupId, out var value)
-            ? Result.Ok(value)
-            : Result.Fail(CantFindTgErrorMessage(groupId));
+            ? value
+            : Array.Empty<AcademicSubjectData>();
     }
-
-    private string CantFindTgErrorMessage(string id) => $"Can't find subjects in {GetType().Name} by group id {id}";
 }

@@ -1,5 +1,4 @@
-﻿using FluentResults;
-using LazyCache;
+﻿using LazyCache;
 using Serilog;
 using StudentManager.Tables;
 using StudentManager.Tables.Models;
@@ -23,7 +22,7 @@ public class StatementsTableWrapper : BaseTableWrapper<StatementSheetData>
         return result;
     }
 
-    public virtual async Task<Result<StatementSheetData[]>> ReadBySubjectId(string subjectId)
+    public virtual async Task<StatementSheetData[]> ReadBySubjectId(string subjectId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, StatementSheetData[]>>(_cacheDictBySubjectIdKey, out var dict))
         {
@@ -32,10 +31,7 @@ public class StatementsTableWrapper : BaseTableWrapper<StatementSheetData>
         }
 
         return dict.TryGetValue(subjectId, out var value)
-            ? Result.Ok(value)
-            : Result.Fail(CantFindSubjectErrorMessage(subjectId));
+            ? value
+            : Array.Empty<StatementSheetData>();
     }
-
-    private string CantFindSubjectErrorMessage(string id) =>
-        $"Can't find statement in {GetType().Name} by subject id {id}";
 }

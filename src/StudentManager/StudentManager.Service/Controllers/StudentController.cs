@@ -40,9 +40,7 @@ public class StudentController : ExtendedMappingController
             return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
 
         var subjects = await _subjects.ReadByGroupId(user.Value.IdGroup);
-        if (subjects.IsFailed)
-            return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
 
-        return Mapper.Map<SubjectInfoDto[]>(subjects.Value);
+        return Mapper.Map<SubjectInfoDto[]>(subjects);
     }
 }
