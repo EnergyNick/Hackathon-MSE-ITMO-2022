@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\EditControllers;
 
 use App\Http\Controllers\BaseController;
+use App\Http\Requests\EditRequests\AppendFileEditRequest;
 use App\Http\Requests\EditRequests\FileEditRequest;
 use App\Services\EditService\EditServiceInterface;
 use Illuminate\Http\JsonResponse;
@@ -28,9 +29,14 @@ class EditController extends BaseController
         return $this->service->edit();
     }
 
-    public function appendFile():JsonResponse
+    /**
+     * Append file to section.
+     * @param AppendFileEditRequest
+     * @return JsonResponse
+     */
+    public function appendFile(AppendFileEditRequest $request):JsonResponse
     {
-        return $this->service->appendFile();
+        return $this->service->appendFile($request);
     }
 
     /**

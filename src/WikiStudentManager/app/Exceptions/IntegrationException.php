@@ -2,6 +2,7 @@
 
 namespace App\Exceptions;
 
+use App\Models\KeyValue;
 use App\Responses\ErrorResponse;
 use Illuminate\Http\JsonResponse;
 use Exception;
@@ -32,6 +33,7 @@ class IntegrationException extends Exception
      */
     public function render(): JsonResponse
     {
+        KeyValue::where('key', config('wiki_auth.auth'))->delete();
         return ErrorResponse::response($this->message, $this->errors, $this->code);
     }
 }

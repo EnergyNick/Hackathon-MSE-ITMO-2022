@@ -4,7 +4,7 @@ namespace App\Http\Requests\EditRequests;
 
 use App\Http\Requests\BaseRequest;
 
-class FileEditRequest extends BaseRequest
+class AppendFileEditRequest extends BaseRequest
 {
     /**
      * Determine if the user is authorized to make this request.

@@ -4,6 +4,7 @@ namespace App\Services\EditService;
 
 use App\Exceptions\IntegrationException;
 use App\Helpers\GetTokenHelper;
+use App\Http\Requests\EditRequests\AppendFileEditRequest;
 use App\Http\Requests\EditRequests\FileEditRequest;
 use App\Responses\SuccessResponse;
 use Illuminate\Http\JsonResponse;
@@ -18,6 +19,11 @@ class EditService implements EditServiceInterface
         return response()->json(['d' => 's'], 200);
     }
 
+    /**
+     * Upload file.
+     * @param FileEditRequest $request
+     * @return JsonResponse
+     */
     public function upload(FileEditRequest $request): JsonResponse
     {
         $data = $request->validated();
@@ -47,9 +53,36 @@ class EditService implements EditServiceInterface
 
         return SuccessResponse::response('file upload', ['name' => $name . $data['file']->extension()], 200);
     }
-    
-    public function appendFile()
-    {
 
+    /**
+     * Append file to section.
+     * @param AppendFileEditRequest
+     * @return JsonResponse
+     */
+    public function appendFile(AppendFileEditRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        $url = <<<TEXT
+        https://wiki.compscicenter.ru/api.php?action=edit&title=StudentManagerTest&section={$data['section']}&appendtext=
+
+        * [[Медиа:{$data['filename']}|{$data['tag']}]]&format=json
+        TEXT;
+
+        $headers = ['Cookie' => $request->get('Cookie')] + ['Content-Type: multipart/form-data'];
+
+        $token = GetTokenHelper::csrf();
+
+        $options = [
+            'token' => $token,
+        ];
+
+        $response = Http::asForm()->withHeaders($headers)->post($url, $options)->json();
+
+        if (array_key_exists('edit', $response) && array_key_exists('result', $response['edit']) && $response['edit']['result'] == 'Warning') {
+            throw new IntegrationException('error append file', null, 400);
+        }
+
+        return SuccessResponse::response('file append', $data, 200);
     }
 }
