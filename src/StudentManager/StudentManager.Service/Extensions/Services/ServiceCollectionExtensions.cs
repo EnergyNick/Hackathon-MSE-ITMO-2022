@@ -1,4 +1,5 @@
-﻿using StudentManager.Logic.Wrappers.Implementations;
+﻿using StudentManager.Logic.Wrappers;
+using StudentManager.Logic.Wrappers.Implementations;
 
 namespace StudentManager.Service.Extensions;
 
@@ -16,5 +17,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<StatementsTableWrapper>();
         services.AddSingleton<PracticeSubgroupsTableWrapper>();
         services.AddSingleton<StudentGroupsTableWrapper>();
+
+        services.AddSingleton<IGradesEditorWrapper, GradesEditorWrapper>();
     }
 }

@@ -82,7 +82,7 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
 
     protected virtual string CacheKey { get; }
     protected virtual string CacheDictByIdKey { get; }
-    protected virtual TimeSpan CacheLifeTime { get; } = TimeSpan.FromMinutes(5);
+    protected virtual TimeSpan CacheLifeTime { get; } = TimeSpan.FromMinutes(3);
 
     protected virtual MemoryCacheEntryOptions GetCacheOptions() =>
         new LazyCacheEntryOptions()
