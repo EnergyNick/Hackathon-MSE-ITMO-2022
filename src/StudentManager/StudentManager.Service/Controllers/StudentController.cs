@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using StudentManager.Logic.TableWrappers.Implementations;
+using StudentManager.Logic.Wrappers.Implementations;
 using StudentManager.Service.Models.Subjects;
 using StudentManager.Service.Models.Users;
 

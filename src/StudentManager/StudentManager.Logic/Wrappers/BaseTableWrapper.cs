@@ -5,7 +5,7 @@ using Serilog;
 using StudentManager.Tables;
 using StudentManager.Tables.Models;
 
-namespace StudentManager.Logic.TableWrappers;
+namespace StudentManager.Logic.Wrappers;
 
 public abstract class BaseTableWrapper<T> : ITableWrapper<T>
     where T: ISheetRowData

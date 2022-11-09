@@ -1,7 +1,7 @@
 ﻿using FluentResults;
 using StudentManager.Tables.Models;
 
-namespace StudentManager.Logic.TableWrappers;
+namespace StudentManager.Logic.Wrappers;
 
 public interface ITableWrapper<T> where T : ISheetRowData
 {

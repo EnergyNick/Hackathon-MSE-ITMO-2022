@@ -4,7 +4,7 @@ using Serilog;
 using StudentManager.Tables;
 using StudentManager.Tables.Models;
 
-namespace StudentManager.Logic.TableWrappers.Implementations;
+namespace StudentManager.Logic.Wrappers.Implementations;
 
 public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
 {

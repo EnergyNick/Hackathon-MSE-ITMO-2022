@@ -1,4 +1,4 @@
-﻿using StudentManager.Logic.TableWrappers.Implementations;
+﻿using StudentManager.Logic.Wrappers.Implementations;
 
 namespace StudentManager.Service.Extensions;
 
