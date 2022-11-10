@@ -31,5 +31,8 @@ public class DomainMappingProfile : Profile
 
         CreateMap<SubgroupOfPracticeData, PracticeSubgroupDto>()
             .ForMember(x => x.LinkForHomeworks, dest => dest.MapFrom(x => x.ResourceFromSendingHomerworks));
+
+        CreateMap<SubjectGrateData, SubjectGradeDto>();
+        CreateMap<GratePartData, GradePartDto>();
     }
 }

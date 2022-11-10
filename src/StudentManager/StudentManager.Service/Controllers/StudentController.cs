@@ -116,6 +116,55 @@ public class StudentController : ExtendedMappingController
         return Ok(new UserSubjectInfoDto(subjectDto, subgroupDto, lectorStatement, practiceStatement));
     }
 
+    [HttpGet("{telegramId}/subject/{subjectId}/grades")]
+    public async Task<ActionResult<SubjectGradesDto>> GetGradesOfUserByTelegramId(string telegramId, string subjectId)
+    {
+        var user = await _students.ReadByTelegramId(telegramId);
+        if (user.IsFailed)
+            return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
+
+        var subjects = await _subjects.ReadByGroupId(user.Value.IdGroup);
+        if (subjects.IsFailed)
+            return CreateFailResult(subjects.Errors, HttpStatusCode.NotFound);
+
+        var subject = subjects.Value.FirstOrDefault(x => x.Id == subjectId);
+        if (subject == null)
+            return BadRequest("SUBJECT_IS_NOT_FOR_USER");
+
+        var userGradesInfo = await _gradesEditor.ReadByUserId(user.Value.Id);
+        if (userGradesInfo.IsFailed)
+            return CreateFailResult(userGradesInfo.Errors);
+
+        var subgroupsGrades = userGradesInfo.Value.Subgroups;
+
+        var grades = subgroupsGrades.Where(x => x.SubjectId == subject.Id).DistinctBy(x => x.SubgroupId).ToArray();
+        if (grades.Length == 0)
+            return NotFound("CANT_FOUND_USER_GRADES");
+
+        var statementsBySubject = await _statements.ReadBySubjectId(subject.Id);
+        if (statementsBySubject.IsFailed)
+            return CreateFailResult(statementsBySubject.Errors);
+
+        string? lectorStatement = null;
+        var sheetData = statementsBySubject.ValueOrDefault?
+            .FirstOrDefault(x => x.StatementType == StatementType.Lecture);
+        if (sheetData is not null)
+            lectorStatement = CreateGoogleTablesUrl(sheetData);
+
+        string? practiceStatement = null;
+        var subgroupId = grades.FirstOrDefault(x => x.SubgroupId is not null)?.SubgroupId;
+        if (subgroupId is not null)
+        {
+            var subSheetData = statementsBySubject.ValueOrDefault?
+                .FirstOrDefault(x => x.IdSubgroup == subgroupId);
+            if (subSheetData is not null)
+                practiceStatement = CreateGoogleTablesUrl(subSheetData);
+        }
+
+        var mappedGrades = grades.Select(x => Mapper.Map<SubjectGradeDto>(x.SubjectGrate)).ToArray();
+        return new SubjectGradesDto(subject.Title, mappedGrades, lectorStatement, practiceStatement);
+    }
+
     private static string CreateGoogleTablesUrl(StatementSheetData data) =>
         $"https://docs.google.com/spreadsheets/d/{data.SpreadsheetId}/edit#gid={data.SheetId}";
 }
