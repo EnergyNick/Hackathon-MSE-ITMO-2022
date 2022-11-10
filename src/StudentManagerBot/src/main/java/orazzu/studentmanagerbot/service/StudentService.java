@@ -35,17 +35,20 @@ public class StudentService extends ServiceBase {
     }
     
     
-    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> getSubjects(Long userId, String username) {
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> getSubjects(
+            Long userId, String username) {
         return subjectList(userId, username, "subjects");
     }
     
     
-    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> getRating(Long userId, String username) {
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> getRating(
+            Long userId, String username) {
         return subjectList(userId, username, "grades");
     }
     
     
-    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> getHometasks(Long userId, String username) {
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> getHometasks(
+            Long userId, String username) {
         return subjectList(userId, username, "hometasks");
     }
     
@@ -62,7 +65,8 @@ public class StudentService extends ServiceBase {
                     EntityToMessageMapper.map(
                             userId,
                             studentManagerDao.getStudentSubject(new User(userId, username), subjectId)
-                    )
+                    ),
+                    deleteButtonsRequest(userId, msg)
             );
         } catch (StudentManagerException e) {
             return errorMessage(userId, new StudentManagerException(ErrorCode.UNKNOWN_ERROR));
@@ -70,7 +74,8 @@ public class StudentService extends ServiceBase {
     }
     
     
-    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> unknownCallback(Long userId, Message msg) {
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> unknownCallback(
+            Long userId, Message msg) {
         return List.of(
                 new SendMessage(userId, "Ой, во что это вы тыкнули?.."),
                 deleteButtonsRequest(userId, msg)
@@ -83,7 +88,8 @@ public class StudentService extends ServiceBase {
     }
     
     
-    private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> subjectList(Long userId, String username, String callbackPrefix) {
+    private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> subjectList(
+            Long userId, String username, String callbackPrefix) {
         try {
             List<Subject> subjects = studentManagerDao.getSubjectsByUser(new User(userId, username));
             
@@ -103,7 +109,8 @@ public class StudentService extends ServiceBase {
     }
     
     
-    private BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse> deleteButtonsRequest(Long userId, Message msg) {
+    private BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse> deleteButtonsRequest(
+            Long userId, Message msg) {
         return new EditMessageText(userId, msg.messageId(), msg.text()).replyMarkup(new InlineKeyboardMarkup());
     }
 }

@@ -20,7 +20,7 @@ import java.util.List;
 public class StudentManagerDao extends DaoBase {
     private final Logger LOGGER = LoggerFactory.getLogger(StudentManagerDao.class);
     private final OkHttpClient httpClient = new OkHttpClient();
-    private final String BASE_URL = Props.getProp("student_service_api.url");
+    private final String BASE_URL = Props.getProp("student_manager_api.url");
     
     
     public List<Subject> getSubjectsByUser(User user) throws StudentManagerException {
