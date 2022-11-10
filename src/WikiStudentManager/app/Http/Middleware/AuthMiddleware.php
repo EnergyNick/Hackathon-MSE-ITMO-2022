@@ -26,7 +26,7 @@ class AuthMiddleware
         ) {
             $response = Auth::authUser();
             $cookies = $response->cookies()->toArray();
-            $expires = $cookies[1]['Expires'];
+            $expires = $cookies[3]['Max-Age'];
             $cookie = '';
             foreach ($cookies as $c) {
                 if (array_key_exists('Name', $c) && array_key_exists('Value', $c)) {

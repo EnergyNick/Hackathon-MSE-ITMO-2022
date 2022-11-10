@@ -24,6 +24,8 @@ class AppendLinkEditRequest extends BaseRequest
     protected function messages(): array
     {
         return [
+            'title.required' => 'field must not be empty if exists',
+            'title.string' => 'field must be string',
             'section.required' => 'field must not be empty',
             'section.integer' => 'field must be integer',
             'link.required' => 'field must not be empty if exists',
@@ -42,6 +44,7 @@ class AppendLinkEditRequest extends BaseRequest
     protected function rules(): array
     {
         return [
+            'title' => 'required|string',
             'section' => 'required|integer',
             'link' => 'required|string',
             'tag' => 'required|string|max:255',

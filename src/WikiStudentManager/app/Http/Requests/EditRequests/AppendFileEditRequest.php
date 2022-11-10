@@ -26,6 +26,8 @@ class AppendFileEditRequest extends BaseRequest
         return [
             'section.required' => 'field must not be empty',
             'section.integer' => 'field must be integer',
+            'title.required' => 'field must not be empty',
+            'title.string' => 'field must be string',
             'filename.required' => 'field must not be empty',
             'filename.max' => 'max length 255',
             'filename.string' => 'field must be string',
@@ -43,6 +45,7 @@ class AppendFileEditRequest extends BaseRequest
     protected function rules(): array
     {
         return [
+            'title' => 'required|string',
             'section' => 'required|integer',
             'filename' => 'required|string|max:255',
             'tag' => 'required|string|max:255',
