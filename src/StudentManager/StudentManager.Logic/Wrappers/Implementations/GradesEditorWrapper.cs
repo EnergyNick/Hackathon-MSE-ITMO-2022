@@ -2,6 +2,7 @@
 using LazyCache;
 using Microsoft.Extensions.Caching.Memory;
 using Serilog;
+using StudentManager.Tables;
 using StudentManager.Tables.Models;
 
 namespace StudentManager.Logic.Wrappers.Implementations;

@@ -55,8 +55,15 @@ public class StudentController : ExtendedMappingController
             return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
 
         var subjects = await _subjects.ReadByGroupId(user.Value.IdGroup);
+        var grades = await _gradesEditor.ReadByUserId(user.Value.Id);
+        if (grades.IsFailed)
+            return CreateFailResult(grades.Errors);
 
-        return Mapper.Map<SubjectInfoDto[]>(subjects);
+        var subgroups = grades.Value.Subgroups;
+        var subjectFiltered = subjects.Value
+            .Where(data => subgroups.Count == 0
+                           || subgroups.Exists(x => x.SubjectId == data.Id));
+        return Mapper.Map<SubjectInfoDto[]>(subjectFiltered);
     }
 
     [HttpGet("{telegramId}/subject/{subjectId}")]
