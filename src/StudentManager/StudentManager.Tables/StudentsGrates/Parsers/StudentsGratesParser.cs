@@ -1,22 +1,21 @@
-﻿namespace StudentManager.Tables.Models;
+﻿using Google.Apis.Sheets.v4;
+using MajorDimensionEnum = Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource.GetRequest.MajorDimensionEnum;
+
+namespace StudentManager.Tables.Models;
 
 internal class StudentsStatementInSubgroups : IGradeSheetEditor
 {
-    private record ColumnPartStatement(string Name, List<string> Values, string MaxValue);
+    private record ColumnPartStatement(string Name, IList<object> Values, string MaxValue);
     
-    private readonly StatementsSheet _statementsSheet;
-    private readonly StudentsSheet _studentsSheet;
     private readonly SheetConnectData _sheetConnect;
     
-    public StudentsStatementInSubgroups(StatementsSheet statementsSheet, StudentsSheet studentsSheet,
-        SheetConnectData sheetConnect)
+    public StudentsStatementInSubgroups(SheetConnectData sheetConnect)
     {
-        _statementsSheet = statementsSheet;
-        _studentsSheet = studentsSheet;
         _sheetConnect = sheetConnect;
     }
 
-    public async Task<List<StudentGratesData>> ReadAll()
+    public async Task<List<StudentGratesData>> ReadAll(List<StudentData> allStudents,
+        List<StatementSheetData> allStatements)
     {
         string GetFCsStudent(StudentData student) =>
             $"{student.Surname} {student.Name}";
@@ -38,9 +37,8 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             GrateType.FiveRatio => 5.ToString(),
         };
         
-        var studentsGrates = (await _studentsSheet.ReadAll()).ToDictionary(GetFCsStudent,
+        var studentsGrates = allStudents.ToDictionary(GetFCsStudent,
             (student) => new StudentGratesData(student, new()));
-        var allStatements = await _statementsSheet.ReadAll();
         var statementsDetailsSheet = new DetailsStatementsSheet(_sheetConnect);
         var allStatementsDetailsList = await statementsDetailsSheet.ReadAll();
         var allStatementsDetails = new Dictionary<string, List<DetailsStatementData>>();
@@ -62,40 +60,35 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
 
             var studentsStatementSheetEditor = new GoogleSheetEditor(connectStatementData, service,
                 GetNameAndRangeNext(nameSheet, statement.StudentsStartCell));
-            var students = studentsStatementSheetEditor.GetSheet().Result;
+            var students = studentsStatementSheetEditor.GetSheet(MajorDimensionEnum.COLUMNS).Result[0];
 
             var pointsStudentsSheetEditor = new GoogleSheetEditor(connectStatementData, service,
                 GetNameAndRangeNext(nameSheet, statement.PointsStartCell));
-            var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;
+            var pointsStudents = pointsStudentsSheetEditor.GetSheet(MajorDimensionEnum.COLUMNS).Result[0];
 
             var columnsPartsStatements = new List<ColumnPartStatement>();
             if (allStatementsDetails.TryGetValue(statement.Id, out var detailsStatements))
             {
                 foreach (var detailsStatement in detailsStatements)
                 {
-                    var details = await new GoogleSheetEditor(connectStatementData, service,
-                        GetNameAndRangeNext(nameSheet, detailsStatement.PointsStartCell)).GetSheet();
-                    var list = new List<string>();
-                    foreach (var detail in details)
-                        if (detail.Count > 0)
-                            list.Add(detail[0].ToString());
-                        else
-                            list.Add("");
+                    var details = (await new GoogleSheetEditor(connectStatementData, service,
+                        GetNameAndRangeNext(nameSheet, detailsStatement.PointsStartCell)).
+                        GetSheet(MajorDimensionEnum.COLUMNS))[0];
 
                     string maxPoints = (await new GoogleSheetEditor(connectStatementData, service,
                         GetNameAndRange(nameSheet, detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
                 
-                    columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, list, maxPoints));
+                    columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, details, maxPoints));
                 }
             }
 
             for (int i = 0; i < students.Count && i < pointsStudents.Count; i++)
             {
-                if (students[i].Count < 1 || pointsStudents.Count < 1)
+                if (students.Count < 1 || pointsStudents.Count < 1)
                     continue;;
                 
-                var student = students[i][0].ToString().Split();
-                var pointsStudent = pointsStudents[i][0].ToString();
+                var student = students[i].ToString().Split();
+                var pointsStudent = pointsStudents[i].ToString();
 
                 if (student.Length < 2)
                     continue;
@@ -106,7 +99,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                 var studentsParts = new List<GratePartData>();
                 foreach (var detailsStatement in columnsPartsStatements)
                     studentsParts.Add(new GratePartData(detailsStatement.Name,
-                        detailsStatement.Values[i], detailsStatement.MaxValue));
+                        detailsStatement.Values[i].ToString(), detailsStatement.MaxValue));
 
                 studentData.Subgroups.Add(new SubgroupOfStudentData(
                     statement.IdSubject,
@@ -117,5 +110,18 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         }
 
         return studentsGrates.Values.ToList();
+    }
+
+    public async Task Write(string spreadsheetLink, List<StudentData> allStudents,
+        List<StatementSheetData> allStatements)
+    {
+        var studentsGrates = await ReadAll(allStudents, allStatements);
+        
+        var connectStatementData = new SheetConnectData(GoogleSheetEditor.GetSpreadsheetIdFromLink(spreadsheetLink),
+            _sheetConnect.Configuration);
+        var sheetResult = new GoogleSheetEditor(connectStatementData, "");
+
+        IList<IList<object>> values = new List<IList<object>>();
+        
     }
 }
