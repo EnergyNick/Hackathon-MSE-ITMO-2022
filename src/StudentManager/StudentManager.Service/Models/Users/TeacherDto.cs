@@ -3,7 +3,7 @@
 public record TeacherDto
 {
     public string Id { get; init; }
-    public string TelegramId { get; init; }
+    public string TelegramUsername { get; init; }
     public string? Email { get; init; }
 
     public string FirstName { get; init; }

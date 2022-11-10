@@ -3,7 +3,7 @@
 public record StudentDto
 {
     public string Id { get; init; }
-    public string TelegramId { get; init; }
+    public string TelegramUsername { get; init; }
 
     public string IsuId { get; init; }
     public string GroupId { get; init; }

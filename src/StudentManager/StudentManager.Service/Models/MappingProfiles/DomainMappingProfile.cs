@@ -13,7 +13,7 @@ public class DomainMappingProfile : Profile
             .ForMember(x => x.FirstName, dest => dest.MapFrom(x => x.Name))
             .ForMember(x => x.LastName, dest => dest.MapFrom(x => x.Surname))
             .ForMember(x => x.GroupId, dest => dest.MapFrom(x => x.IdGroup))
-            .ForMember(x => x.TelegramId, dest => dest.MapFrom(x => x.Telegram));
+            .ForMember(x => x.TelegramUsername, dest => dest.MapFrom(x => x.Telegram));
 
         CreateMap<AcademicSubjectData, SubjectDto>()
             .ForMember(x => x.Name, dest => dest.MapFrom(x => x.Title))
@@ -27,7 +27,7 @@ public class DomainMappingProfile : Profile
         CreateMap<TeacherData, TeacherDto>()
             .ForMember(x => x.FirstName, dest => dest.MapFrom(x => x.Name))
             .ForMember(x => x.LastName, dest => dest.MapFrom(x => x.Surname))
-            .ForMember(x => x.TelegramId, dest => dest.MapFrom(x => x.Telegram));
+            .ForMember(x => x.TelegramUsername, dest => dest.MapFrom(x => x.Telegram));
 
         CreateMap<SubgroupOfPracticeData, PracticeSubgroupDto>()
             .ForMember(x => x.LinkForHomeworks, dest => dest.MapFrom(x => x.ResourceFromSendingHomerworks));
