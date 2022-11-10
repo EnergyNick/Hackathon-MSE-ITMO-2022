@@ -3,6 +3,7 @@ using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Services;
 using MajorDimensionEnum = Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource.GetRequest.MajorDimensionEnum;
+using BatchMajorDimensionEnum = Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource.BatchGetRequest.MajorDimensionEnum;
 
 namespace StudentManager.Tables;
 
@@ -21,7 +22,7 @@ internal class GoogleSheetEditor
         _sheetNameAndRange = GetSheetNameByID(_service, sheetConnectData.SpreadsheetId, sheetId).Result;
     }
 
-    public GoogleSheetEditor(SheetConnectData sheetConnectData, string sheetNameAndRange)
+    public GoogleSheetEditor(SheetConnectData sheetConnectData, string sheetNameAndRange = "")
     {
         _spreadsheetId = sheetConnectData.SpreadsheetId;
         _service = GetSheetsService(sheetConnectData);
@@ -35,7 +36,7 @@ internal class GoogleSheetEditor
         _sheetNameAndRange = $"'{GetSheetNameByID(_service, sheetConnectData.SpreadsheetId, sheetId).Result}'!{sheetRange}";
     }
 
-    public GoogleSheetEditor(SheetConnectData sheetConnectData, SheetsService sheetsService, string sheetNameAndRange)
+    public GoogleSheetEditor(SheetConnectData sheetConnectData, SheetsService sheetsService, string sheetNameAndRange = "")
     {
         _spreadsheetId = sheetConnectData.SpreadsheetId;
         _service = sheetsService;
@@ -59,6 +60,17 @@ internal class GoogleSheetEditor
             throw new InvalidOperationException("No data found.");
         }
     }
+    
+    public async Task<IList<ValueRange>> GetBatchSheet(List<string> ranges, BatchMajorDimensionEnum majorDimension = BatchMajorDimensionEnum.ROWS)
+    {
+        SpreadsheetsResource.ValuesResource.BatchGetRequest request =
+            _service.Spreadsheets.Values.BatchGet(_spreadsheetId);
+        request.MajorDimension = majorDimension;
+        request.Ranges = ranges;
+
+        BatchGetValuesResponse response = await request.ExecuteAsync();
+        return response.ValueRanges;
+    }
 
     public void SetSheet(IList<IList<object>> sheet)
     {
@@ -66,9 +78,21 @@ internal class GoogleSheetEditor
         {
             Values = sheet,
         };
-
+        
         var updateRequest = _service.Spreadsheets.Values.Update(body, _spreadsheetId, _sheetNameAndRange);
         updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
+        updateRequest.Execute();
+    }
+    
+    public void SetSheet(IList<Request> requests)
+    {
+        var body = new BatchUpdateSpreadsheetRequest()
+        {
+            Requests = requests,
+        };
+
+        var updateRequest = _service.Spreadsheets.BatchUpdate(body, _spreadsheetId);
+        //updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
         updateRequest.Execute();
     }
 

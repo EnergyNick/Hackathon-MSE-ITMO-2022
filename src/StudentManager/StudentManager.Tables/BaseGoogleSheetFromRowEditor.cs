@@ -70,7 +70,6 @@ internal abstract class BaseGoogleSheetFromRowEditor<T> : IManagerSheetEditor<T>
             {
                 var column = availableColumns[j];
                 var columnData = ColumnsDatas[column.Value];
-                object value = sheetValues[i][column.Index];
                 string valueStr = sheetValues[i][column.Index].ToString();
                 if (loadColumnBehaviour == LoadColumnBehaviour.ThrowException &&
                     columnData.IsRequired && valueStr is "" or "-")

@@ -68,6 +68,7 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
 
     protected override void InitAdditionalyParsedData(StatementSheetData data)
     {
-        data.Id = $"{data.IdSubgroup} - {ParseToStatementType(data.StatementType)}";
+        string prefixId = string.IsNullOrEmpty(data.IdSubgroup) ? data.IdSubject : data.IdSubgroup;
+        data.Id = $"{prefixId} - {ParseToStatementType(data.StatementType)}";
     }
 }
