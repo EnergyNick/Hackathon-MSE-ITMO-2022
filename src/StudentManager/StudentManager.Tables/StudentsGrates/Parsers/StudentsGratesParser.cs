@@ -236,6 +236,27 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             }
         }
 
+        var border = new Border
+        {
+            ColorStyle = new ColorStyle()
+            {
+                RgbColor = new Color
+                {
+                    Alpha = 1,
+                    Blue = 0,
+                    Green = 0,
+                    Red = 0,
+                },
+            },
+            Style = "SOLID",
+        };
+        var overallGridRange = new GridRange
+        {
+            StartColumnIndex = 0,
+            StartRowIndex = 0,
+            EndColumnIndex = values.Length,
+            EndRowIndex = values[0].Length,
+        };
         List<Request> requests = new List<Request>()
         {
             new Request()
@@ -247,7 +268,32 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                         Title = nameNewSheet,
                     },
                 },
-            }
+            },
+            // new Request()
+            // {
+            //     UpdateBorders = new UpdateBordersRequest
+            //     {
+            //         Range = overallGridRange,
+            //         InnerHorizontal = border,
+            //         InnerVertical = border,
+            //         Bottom = border,
+            //         Left = border,
+            //         Right = border,
+            //         Top = border,
+            //     },
+            // },
+            // new Request()
+            // {
+            //     AutoResizeDimensions = new AutoResizeDimensionsRequest
+            //     {
+            //         Dimensions = new DimensionRange
+            //         {
+            //             Dimension = "COLUMNS",
+            //             StartIndex = overallGridRange.StartColumnIndex,
+            //             EndIndex = overallGridRange.EndColumnIndex,
+            //         },
+            //     },
+            // },
         };
 
         /*List<Request> requests = new List<Request>()
