@@ -97,13 +97,13 @@ public class StudentController : ExtendedMappingController
 
         string? lectorStatement = null;
         var lector = await _teachers.ReadById(subject.Value.IdTeacher);
-        var subjectDto = Mapper.Map<SubjectDto>(subject.Value);
-        subjectDto.Lector = Mapper.Map<TeacherDto>(lector.Value);
-
         var sheetData = statementsBySubject.ValueOrDefault?
             .FirstOrDefault(x => x.StatementType == StatementType.Lecture);
         if (sheetData is not null)
             lectorStatement = CreateGoogleTablesUrl(sheetData);
+
+        var subjectDto = Mapper.Map<SubjectDto>(subject.Value);
+        subjectDto.Lector = Mapper.Map<TeacherDto>(lector.Value);
 
         return Ok(new UserSubjectInfoDto(subjectDto, subgroupDto, lectorStatement, practiceStatement));
     }
