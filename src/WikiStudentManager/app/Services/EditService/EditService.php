@@ -84,6 +84,10 @@ class EditService implements EditServiceInterface
             throw new IntegrationException('error append file', null, 400);
         }
 
+        if (array_key_exists('error', $response)) {
+            throw new IntegrationException('error append file', $response, 400);
+        }
+
         return SuccessResponse::response('file append', $data, 200);
     }
 
@@ -113,9 +117,13 @@ class EditService implements EditServiceInterface
         $response = Http::asForm()->withHeaders($headers)->post($url, $options)->json();
 
         if (array_key_exists('edit', $response) && array_key_exists('result', $response['edit']) && $response['edit']['result'] == 'Warning') {
-            throw new IntegrationException('error append file', null, 400);
+            throw new IntegrationException('error append link', null, 400);
         }
 
-        return SuccessResponse::response('file append', $data, 200);
+        if (array_key_exists('error', $response)) {
+            throw new IntegrationException('error append link', $response, 400);
+        }
+
+        return SuccessResponse::response('link append', $data, 200);
     }
 }
