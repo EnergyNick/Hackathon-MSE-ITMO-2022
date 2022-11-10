@@ -15,7 +15,7 @@ internal class StudentsSheet : BaseGoogleSheetFromRowEditor<StudentData>
                 data.Patronymic = fcs.ElementAtOrDefault(2) ?? "";
             }, true),
         ["Telegram"] = 
-            new ((data, value) => data.Telegram = value.ToString(), true),
+            new ((data, value) => data.Telegram = value.ToString(), false),
         ["Почта"] = 
             new ((data, value) => data.Email = value.ToString(), false),
         ["ID группы"] = 

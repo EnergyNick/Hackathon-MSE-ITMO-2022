@@ -17,7 +17,7 @@ internal class TeachersSheet : BaseGoogleSheetFromRowEditor<TeacherData>
         ["Telegram"] =
             new ((data, value) => data.Telegram = value.ToString(), false),
         ["Почта"] =
-            new ((data, value) => data.Email = value.ToString(), true),
+            new ((data, value) => data.Email = value.ToString(), false),
     };
 
     protected override int SheetId => 570238076;

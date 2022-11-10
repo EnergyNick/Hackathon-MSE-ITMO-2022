@@ -4,8 +4,6 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
 {
     protected override Dictionary<string, ColumnCondition<StatementSheetData>> ColumnsDatas { get; } = new ()
     {
-        ["ID"] =
-            new((data, value) => data.Id = value.ToString(), true),
         ["ID предмета"] =
             new((data, value) => data.IdSubject = value.ToString(), true),
         ["Тип занятия"] =
@@ -39,6 +37,16 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
             "Лекция" => StatementType.Lecture,
         };
     }
+    
+    private static string ParseToStatementType(StatementType statementType)
+    {
+        return statementType switch
+        {
+            StatementType.Practice => "Практика",
+            StatementType.Lecture => "Лекция",
+        };
+    }
+
 
     private static GrateType ParseGrateType(object value)
     {
@@ -55,5 +63,10 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
     public StatementsSheet(SheetConnectData sheetConnectData)
         : base(sheetConnectData)
     {
+    }
+
+    protected override void InitAdditionalyParsedData(StatementSheetData data)
+    {
+        data.Id = $"{data.IdSubgroup} - {ParseToStatementType(data.StatementType)}";
     }
 }
