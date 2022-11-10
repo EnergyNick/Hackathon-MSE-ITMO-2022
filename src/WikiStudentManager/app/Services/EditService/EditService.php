@@ -42,12 +42,13 @@ class EditService implements EditServiceInterface
         $body = [
             'token' => $token,
             'file' => $file,
+            'ignorewarnings' => true
         ];
 
         $response = Http::withHeaders($headers)
             ->attach($_FILES['file']['name'], $file, $_FILES['file']['name'])
             ->post($url, $body)->json();
-
+        dd($response);
         if (array_key_exists('upload', $response) && array_key_exists('result', $response['upload']) && $response['upload']['result'] == 'Warning') {
             throw new IntegrationException('error upload file', null, 400);
         }
