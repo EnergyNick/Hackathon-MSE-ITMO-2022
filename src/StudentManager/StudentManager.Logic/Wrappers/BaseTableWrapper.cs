@@ -32,7 +32,10 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
             dict = AppCache.Get<Dictionary<string, T>>(CacheDictByIdKey);
         }
 
-        return dict != null && dict.TryGetValue(id, out var value)
+        if (dict == null)
+            return Result.Fail<T>(WrapperErrors.EmptyInGoogleTablesCache);
+
+        return dict.TryGetValue(id, out var value)
             ? Result.Ok(value)
             : Result.Fail(CantFindErrorMessage(id));
     }
@@ -52,14 +55,13 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
         try
         {
             await Sheet.Update(value, id);
+            //Check if this necessary after all updates
+            await UpdateCache();
         }
         catch (Exception e)
         {
             Logger.Error(e, "Error on {ServiceName} while updating value by id {Id}", GetType().Name, id);
         }
-
-        //Check if this necessary after all updates
-        await UpdateCache();
 
         return Result.Ok();
     }
@@ -98,6 +100,6 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
     protected virtual string CantFindErrorMessage(string id)
     {
         Logger.Warning("Can\'t find element in {Name} by id {Id}", GetType().Name, id);
-        return "ELEMENT_NOT_FOUND_BY_ID";
+        return WrapperErrors.CantFindItemById;
     }
 }

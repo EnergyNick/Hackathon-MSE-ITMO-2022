@@ -31,7 +31,10 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
             dict = AppCache.Get<Dictionary<string, StudentData>>(_cacheDictByTelegramIdKey);
         }
 
-        return dict != null && dict.TryGetValue(telegramId, out var value)
+        if (dict == null)
+            return Result.Fail<StudentData>(WrapperErrors.EmptyInGoogleTablesCache);
+
+        return dict.TryGetValue(telegramId, out var value)
             ? Result.Ok(value)
             : Result.Fail(CantFindTgErrorMessage(telegramId));
     }
@@ -39,6 +42,6 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
     private string CantFindTgErrorMessage(string id)
     {
         Logger.Warning("Can\'t find telegram in {Name} by id {Id}", GetType().Name, id);
-        return "USER_NOT_FOUND_BY_TELEGRAM_USERNAME";
+        return WrapperErrors.CantFindUserByTelegramUsername;
     }
 }

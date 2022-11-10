@@ -1,4 +1,5 @@
-﻿using LazyCache;
+﻿using FluentResults;
+using LazyCache;
 using Serilog;
 using StudentManager.Tables;
 using StudentManager.Tables.Models;
@@ -23,13 +24,16 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
         return result;
     }
 
-    public virtual async Task<AcademicSubjectData[]> ReadByGroupId(string groupId)
+    public virtual async Task<Result<AcademicSubjectData[]>> ReadByGroupId(string groupId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, AcademicSubjectData[]>>(_cacheDictByGroupIdKey, out var dict))
         {
             await UpdateCache();
             dict = AppCache.Get<Dictionary<string, AcademicSubjectData[]>>(_cacheDictByGroupIdKey);
         }
+
+        if (dict == null)
+            return Result.Fail<AcademicSubjectData[]>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(groupId, out var value)
             ? value

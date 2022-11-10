@@ -89,10 +89,10 @@ public class StudentController : ExtendedMappingController
             subgroupDto = Mapper.Map<PracticeSubgroupDto>(subgroup.Value);
             subgroupDto.Teacher = Mapper.Map<TeacherDto>(practice.Value);
 
-            var subSheetData = statementsBySubject.FirstOrDefault(x => x.IdSubgroup == subgroup.Value.Id);
+            var subSheetData = statementsBySubject.ValueOrDefault?
+                .FirstOrDefault(x => x.IdSubgroup == subgroup.Value.Id);
             if (subSheetData is not null)
-                practiceStatement =
-                    $"https://docs.google.com/spreadsheets/d/{subSheetData.SpreadsheetId}/edit#gid={subSheetData.SheetId}";
+                practiceStatement = CreateGoogleTablesUrl(subSheetData);
         }
 
         string? lectorStatement = null;
@@ -100,11 +100,14 @@ public class StudentController : ExtendedMappingController
         var subjectDto = Mapper.Map<SubjectDto>(subject.Value);
         subjectDto.Lector = Mapper.Map<TeacherDto>(lector.Value);
 
-        var sheetData = statementsBySubject.FirstOrDefault(x => x.StatementType == StatementType.Lecture);
+        var sheetData = statementsBySubject.ValueOrDefault?
+            .FirstOrDefault(x => x.StatementType == StatementType.Lecture);
         if (sheetData is not null)
-            lectorStatement =
-                $"https://docs.google.com/spreadsheets/d/{sheetData.SpreadsheetId}/edit#gid={sheetData.SheetId}";
+            lectorStatement = CreateGoogleTablesUrl(sheetData);
 
         return Ok(new UserSubjectInfoDto(subjectDto, subgroupDto, lectorStatement, practiceStatement));
     }
+
+    private static string CreateGoogleTablesUrl(StatementSheetData data) =>
+        $"https://docs.google.com/spreadsheets/d/{data.SpreadsheetId}/edit#gid={data.SheetId}";
 }

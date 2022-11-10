@@ -35,7 +35,10 @@ public class GradesEditorWrapper : IGradesEditorWrapper
             dict = AppCache.Get<Dictionary<string,StudentGratesData>>(CacheDictByUserIdKey);
         }
 
-        return dict != null && dict.TryGetValue(userId, out var value)
+        if (dict == null)
+            return Result.Fail<StudentGratesData>(WrapperErrors.EmptyInGoogleTablesCache);
+
+        return dict.TryGetValue(userId, out var value)
             ? Result.Ok(value)
             : Result.Fail(CantFindByUserErrorMessage(userId));
     }
@@ -75,6 +78,6 @@ public class GradesEditorWrapper : IGradesEditorWrapper
     protected virtual string CantFindByUserErrorMessage(string id)
     {
         Logger.Warning("Can\'t find element in {Name} by id {Id}", GetType().Name, id);
-        return $"CANT_FIND_GRADES_BY_USER_ID";
+        return WrapperErrors.CantFindGradesByUserId;
     }
 }
