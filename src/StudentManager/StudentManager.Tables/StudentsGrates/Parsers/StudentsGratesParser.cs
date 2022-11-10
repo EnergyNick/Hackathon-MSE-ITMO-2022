@@ -1,23 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace StudentManager.Tables.Models;
-
-public record GratePartData(string Name, string Value, string MaxValue);
-public record SubjectGrateData(string Name, string CurrentValue, string MaxValue, List<GratePartData> Parts);
-
-public record SubgroupOfStudentData
-{
-    public string SubjectId { get; set; }
-    public string? SubgroupId { get; set; }
-    public SubjectGrateData SubjectGrate { get; set; }
-}
-
-public record StudentGratesData(StudentData Student, List<SubgroupOfStudentData> Subgroups);
-
-public interface IGradeSheetEditor
-{
-    Task<List<StudentGratesData>> ReadAll();
-};
+﻿namespace StudentManager.Tables.Models;
 
 internal class StudentsStatementInSubgroups : IGradeSheetEditor
 {
@@ -120,12 +101,11 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                     studentsParts.Add(new GratePartData(detailsStatement.Name,
                         detailsStatement.Values[i], detailsStatement.MaxValue));
 
-                studentData.Subgroups.Add(new SubgroupOfStudentData()
-                {
-                    SubjectId = statement.IdSubject,
-                    SubgroupId = statement.StatementType == StatementType.Practice ? statement.IdSubgroup : null,
-                    SubjectGrate = new SubjectGrateData(statement.BlockName, pointsStudent, GetMaxValue(statement), studentsParts),
-                });
+                studentData.Subgroups.Add(new SubgroupOfStudentData(
+                    statement.IdSubject,
+                    statement.StatementType == StatementType.Practice ? statement.IdSubgroup : null,
+                    new SubjectGrateData(statement.BlockName, pointsStudent, GetMaxValue(statement), studentsParts)
+                ));
             }
         }
 
