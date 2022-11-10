@@ -30,7 +30,7 @@ public class StatementsTableWrapper : BaseTableWrapper<StatementSheetData>
             dict = AppCache.Get<Dictionary<string, StatementSheetData[]>>(_cacheDictBySubjectIdKey);
         }
 
-        return dict.TryGetValue(subjectId, out var value)
+        return dict != null && dict.TryGetValue(subjectId, out var value)
             ? value
             : Array.Empty<StatementSheetData>();
     }

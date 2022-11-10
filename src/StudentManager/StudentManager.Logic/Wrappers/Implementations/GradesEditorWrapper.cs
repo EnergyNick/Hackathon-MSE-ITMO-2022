@@ -35,7 +35,7 @@ public class GradesEditorWrapper : IGradesEditorWrapper
             dict = AppCache.Get<Dictionary<string,StudentGratesData>>(CacheDictByUserIdKey);
         }
 
-        return dict.TryGetValue(userId, out var value)
+        return dict != null && dict.TryGetValue(userId, out var value)
             ? Result.Ok(value)
             : Result.Fail(CantFindByUserErrorMessage(userId));
     }

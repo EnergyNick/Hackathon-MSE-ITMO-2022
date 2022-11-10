@@ -32,7 +32,9 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
             dict = AppCache.Get<Dictionary<string, T>>(CacheDictByIdKey);
         }
 
-        return dict.TryGetValue(id, out var value) ? Result.Ok(value) : Result.Fail(CantFindErrorMessage(id));
+        return dict != null && dict.TryGetValue(id, out var value)
+            ? Result.Ok(value)
+            : Result.Fail(CantFindErrorMessage(id));
     }
 
     public virtual async Task<List<T>> ReadAll()
@@ -72,7 +74,7 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
         catch (Exception e)
         {
             Logger.Error(e, "Error on getting all items in {ServiceName}", GetType().Name);
-            items = new List<T>();
+            return new List<T>();
         }
 
         AppCache.Add(CacheKey, items, GetCacheOptions());

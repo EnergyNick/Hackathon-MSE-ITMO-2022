@@ -31,7 +31,7 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
             dict = AppCache.Get<Dictionary<string, StudentData>>(_cacheDictByTelegramIdKey);
         }
 
-        return dict.TryGetValue(telegramId, out var value)
+        return dict != null && dict.TryGetValue(telegramId, out var value)
             ? Result.Ok(value)
             : Result.Fail(CantFindTgErrorMessage(telegramId));
     }
