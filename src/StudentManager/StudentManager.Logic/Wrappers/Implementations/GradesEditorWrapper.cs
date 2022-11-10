@@ -13,9 +13,17 @@ public class GradesEditorWrapper : IGradesEditorWrapper
     protected readonly IAppCache AppCache;
     protected readonly ILogger Logger;
 
-    public GradesEditorWrapper(IGradeSheetEditor sheet, IAppCache appCache, ILogger logger)
+    private readonly ITableWrapper<StatementSheetData> _statements;
+    private readonly ITableWrapper<StudentData> _students;
+
+    public GradesEditorWrapper(IGradeSheetEditor sheet,
+        StudentsTableWrapper students,
+        StatementsTableWrapper statements,
+        IAppCache appCache, ILogger logger)
     {
         Sheet = sheet;
+        _students = students;
+        _statements = statements;
         AppCache = appCache;
         Logger = logger;
 
@@ -49,7 +57,9 @@ public class GradesEditorWrapper : IGradesEditorWrapper
         List<StudentGratesData> items;
         try
         {
-            items = await Sheet.ReadAll();
+            var students = await _students.ReadAll();
+            var statements = await _statements.ReadAll();
+            items = await Sheet.ReadAll(students, statements);
         }
         catch (Exception e)
         {
