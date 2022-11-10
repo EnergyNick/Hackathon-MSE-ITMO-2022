@@ -21,6 +21,7 @@ public class TeachersTableWrapper : BaseTableWrapper<TeacherData>
         var result = await base.UpdateCache();
         AppCache.Add(_cacheDictByTelegramIdKey, result
             .Where(x => !string.IsNullOrWhiteSpace(x.Telegram))
+            .DistinctBy(x => x.Telegram)
             .ToDictionary(x => x.Telegram), GetCacheOptions());
         return result;
     }

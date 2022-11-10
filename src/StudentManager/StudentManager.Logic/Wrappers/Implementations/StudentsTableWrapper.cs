@@ -19,7 +19,9 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
     protected override async Task<List<StudentData>> UpdateCache()
     {
         var result = await base.UpdateCache();
-        AppCache.Add(_cacheDictByTelegramIdKey, result.ToDictionary(x => x.Telegram), GetCacheOptions());
+        AppCache.Add(_cacheDictByTelegramIdKey, result
+            .DistinctBy(x => x.Telegram)
+            .ToDictionary(x => x.Telegram), GetCacheOptions());
         return result;
     }
 
