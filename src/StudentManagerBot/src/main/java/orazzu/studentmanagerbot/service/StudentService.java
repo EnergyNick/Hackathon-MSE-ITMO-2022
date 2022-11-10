@@ -17,6 +17,7 @@ import orazzu.studentmanagerbot.service.util.EntityToMessageMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -83,8 +84,15 @@ public class StudentService extends ServiceBase {
     }
     
     
-    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> notImplemented(Long userId) {
-        return List.of(new SendMessage(userId, "Ещё не реализовано"));
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> notImplemented(Long userId, Message msg) {
+        List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> response = new ArrayList<>();
+    
+        response.add(new SendMessage(userId, "Ещё не реализовано"));
+        
+        if (msg != null)
+            response.add(deleteButtonsRequest(userId, msg));
+            
+        return response;
     }
     
     

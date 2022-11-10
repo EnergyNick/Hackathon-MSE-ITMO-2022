@@ -80,9 +80,9 @@ public class Listener implements UpdatesListener {
         Message message = query.message();
         
         return switch (menuButton[0]) {
-            case "file" -> teacherService.notImplemented(userId);
+            case "file" -> teacherService.notImplemented(userId, message);
     
-            case "link" -> teacherService.notImplemented(userId);
+            case "link" -> teacherService.notImplemented(userId, message);
             
             default -> teacherService.unknownCallback(userId, message);
         };
