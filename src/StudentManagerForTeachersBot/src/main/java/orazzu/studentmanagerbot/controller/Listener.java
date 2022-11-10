@@ -74,22 +74,11 @@ public class Listener implements UpdatesListener {
     
     
     private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processCallback(CallbackQuery query) {
-        String[] menuButton = query.data().split(":", 2);
-        Long userId = query.from().id();
-        String username = query.from().username();
-        Message message = query.message();
-        
-        return switch (menuButton[0]) {
-            case "file" -> teacherService.notImplemented(userId, message);
-    
-            case "link" -> teacherService.notImplemented(userId, message);
-            
-            default -> teacherService.unknownCallback(userId, message);
-        };
+        return teacherService.processCallback(query.from().id(), query.data(), query.message());
     }
     
     
     private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processText(Message msg) {
-        return teacherService.notCmd(msg.chat().id());
+        return teacherService.processText(msg.chat().id(), msg.text());
     }
 }

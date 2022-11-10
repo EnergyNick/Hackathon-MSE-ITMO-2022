@@ -480,3 +480,4 @@ replay_pid*
 # End of https://www.toptal.com/developers/gitignore/api/rider,intellij,java,visualstudiocode,aspnetcore
 
 **/target/
+**.log.gz

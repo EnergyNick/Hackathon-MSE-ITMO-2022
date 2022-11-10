@@ -16,12 +16,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class TeacherService extends ServiceBase {
     private final Logger LOGGER = LoggerFactory.getLogger(TeacherService.class);
     private final StudentManagerDao studentManagerDao;
+    private final Map<Long, State> userIdToPayload = new HashMap<>();
     
     
     public TeacherService(StudentManagerDao studentManagerDao) {
@@ -56,6 +59,37 @@ public class TeacherService extends ServiceBase {
     }
     
     
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processCallback(
+            Long userId, String data, Message msg) {
+        State state = userIdToPayload.get(userId);
+        
+        if (userId == null)
+            return unknownCallback(userId, msg);
+        
+        return switch (state.getType()) {
+            case POST_LINK -> postLinkAskForSection(userId, data, msg);
+            
+            default -> unknownCallback(userId, msg);
+        };
+    }
+    
+    
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processText(Long userId, String text) {
+        State state = userIdToPayload.get(userId);
+        
+        if (state == null)
+            return notCmd(userId);
+        
+        return switch (state.getType()) {
+            case POST_LINK_SUBJECT -> postLinkAskForLink(userId, text);
+            case POST_LINK_SUBJECT_SECTION -> postLinkAskForTag(userId, text);
+            case POST_LINK_SUBJECT_SECTION_LINK -> postLinkRequest(userId, text);
+            
+            default -> notCmd(userId);
+        };
+    }
+    
+    
     public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> unknownCmd(Long userId) {
         return List.of(new SendMessage(userId, "Неизвестная команда"));
     }
@@ -76,7 +110,7 @@ public class TeacherService extends ServiceBase {
     
     
     private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> subjectList(
-            Long userId, String username, String callbackPrefix) {
+            Long userId, String username, String currCmd) {
         try {
             List<Subject> subjects = studentManagerDao.getSubjectsByUser(new User(userId, username));
             
@@ -85,11 +119,65 @@ public class TeacherService extends ServiceBase {
             
             InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
             subjects.forEach(subject -> keyboard.addRow(new InlineKeyboardButton(subject.getName())
-                    .callbackData(callbackPrefix + ":" + subject.getId())
+                    .callbackData(subject.getId())
             ));
+            
+            userIdToPayload.put(userId, new State(StateType.POST_LINK, new ArrayList<>()));
             
             return List.of(new SendMessage(userId, "Выберите предмет")
                     .replyMarkup(keyboard));
+        } catch (StudentManagerException e) {
+            return errorMessage(userId, e);
+        }
+    }
+    
+    
+    private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> postLinkAskForSection(
+            Long userId, String subjectId, Message msg) {
+        final List<String> payloadData = userIdToPayload.get(userId).getData();
+        payloadData.add(subjectId);
+        userIdToPayload.put(userId, new State(StateType.POST_LINK_SUBJECT, payloadData));
+        
+        return List.of(
+                new SendMessage(userId, "Введите номер раздела"),
+                deleteButtonsRequest(userId, msg)
+        );
+    }
+    
+    
+    private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> postLinkAskForLink(
+            Long userId, String section) {
+        final List<String> payloadData = userIdToPayload.get(userId).getData();
+        payloadData.add(section);
+        userIdToPayload.put(userId, new State(StateType.POST_LINK_SUBJECT_SECTION, payloadData));
+        
+        return List.of(new SendMessage(userId, "Введите ссылку"));
+    }
+    
+    
+    private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> postLinkAskForTag(
+            Long userId, String link) {
+        final List<String> payloadData = userIdToPayload.get(userId).getData();
+        payloadData.add(link);
+        userIdToPayload.put(userId, new State(StateType.POST_LINK_SUBJECT_SECTION_LINK, payloadData));
+        
+        return List.of(new SendMessage(userId, "Введите название ссылки"));
+    }
+    
+    
+    private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> postLinkRequest(
+            Long userId, String tag) {
+        final List<String> payloadData = userIdToPayload.remove(userId).getData();
+        
+        try {
+            studentManagerDao.postLink(
+                    payloadData.get(0),
+                    payloadData.get(1),
+                    payloadData.get(2),
+                    tag
+            );
+            
+            return List.of(new SendMessage(userId, "Готово"));
         } catch (StudentManagerException e) {
             return errorMessage(userId, e);
         }

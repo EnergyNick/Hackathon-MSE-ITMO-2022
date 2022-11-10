@@ -2,10 +2,9 @@ package orazzu.studentmanagerbot.dao;
 
 
 import com.google.gson.reflect.TypeToken;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import orazzu.studentmanagerbot.Props;
+import orazzu.studentmanagerbot.dto.PostLinkDto;
 import orazzu.studentmanagerbot.dto.SubjectDto;
 import orazzu.studentmanagerbot.error.StudentManagerException;
 import orazzu.studentmanagerbot.model.Subject;
@@ -54,6 +53,29 @@ public class StudentManagerDao extends DaoBase {
                 LOGGER.info("Failed to get subjects by {}: code={}, body={}", user, response.code(), json);
                 
                 throw toStudentManagerException(json);
+            }
+        } catch (IOException | RuntimeException e) {
+            throw wrapAsUnknownError(e);
+        }
+    }
+    
+    
+    public void postLink(String subjectId, String sectionId, String link, String tagName) throws StudentManagerException {
+        LOGGER.debug("Posting link {} by subjectId={}, sectionId={}", link, subjectId, sectionId);
+        
+        Request request = new Request.Builder()
+                .method("POST", RequestBody.create(GSON.toJson(new PostLinkDto(tagName, link)), MEDIA_TYPE_JSON))
+                .url(BASE_URL + "/teacher/subject/" + subjectId + "/section/" + sectionId + "/attach/link")
+                .build();
+        
+        try (Response response = httpClient.newCall(request).execute()) {
+            String body = response.body().string();
+            
+            if (!response.isSuccessful()) {
+                LOGGER.info("Failed to post link {} by subjectId={}, sectionId={}: code={}, body={}",
+                        link, subjectId, sectionId, response.code(), body);
+                
+                throw toStudentManagerException(body);
             }
         } catch (IOException | RuntimeException e) {
             throw wrapAsUnknownError(e);
