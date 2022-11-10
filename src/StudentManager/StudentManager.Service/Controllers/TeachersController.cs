@@ -5,7 +5,6 @@ using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
-using StudentManager.Logic.Wrappers;
 using StudentManager.Logic.Wrappers.Implementations;
 using StudentManager.Service.Models.Receive;
 using StudentManager.Service.Models.Subjects;
@@ -21,25 +20,19 @@ public class TeachersController : ExtendedMappingController
     private readonly SubjectsTableWrapper _subjects;
     private readonly TeachersTableWrapper _teachers;
     private readonly PracticeSubgroupsTableWrapper _subgroups;
-    private readonly StatementsTableWrapper _statements;
-    private readonly IGradesEditorWrapper _gradesEditor;
 
     public TeachersController(HttpClient client, IMapper mapper,
             SubjectsTableWrapper subjects,
             TeachersTableWrapper teachers,
-            PracticeSubgroupsTableWrapper subgroups,
-            StatementsTableWrapper statements,
-            IGradesEditorWrapper gradesEditor)
+            PracticeSubgroupsTableWrapper subgroups)
         : base(mapper)
     {
         _client = client;
-        _client.BaseAddress = new Uri("wiki_service");
+        _client.BaseAddress = new UriBuilder("http", "wiki_service", 80, "wiki").Uri;
 
         _subjects = subjects;
         _teachers = teachers;
         _subgroups = subgroups;
-        _statements = statements;
-        _gradesEditor = gradesEditor;
     }
 
     [HttpGet("{telegramId}/subjects")]
@@ -80,7 +73,7 @@ public class TeachersController : ExtendedMappingController
         var result = new { section = sectionId, link = info.Link, tag = info.TagName, title = titleLink };
         try
         {
-            var response = await _client.PostAsync("https://api.test.projects-cabinet.ru/wiki/" + "append-link",
+            var response = await _client.PostAsync("append-link",
                 new StringContent(JsonSerializer.Serialize(result), Encoding.UTF8, "application/json"));
 
             response.EnsureSuccessStatusCode();
