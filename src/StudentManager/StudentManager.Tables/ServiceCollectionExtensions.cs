@@ -12,17 +12,14 @@ public static class ServiceCollectionExtensions
     {
         var connectData = new SheetConnectData(_spreadsheetId, configuration);
 
-        var statementsSheet = new StatementsSheet(connectData);
-        var studentsSheet = new StudentsSheet(connectData);
-
         services.AddSingleton<IManagerSheetEditor<AcademicSubjectData>>(new AcademicSubjectsSheet(connectData));
         services.AddSingleton<IManagerSheetEditor<GroupData>>(new GroupsSheet(connectData));
-        services.AddSingleton<IManagerSheetEditor<StatementSheetData>>(statementsSheet);
-        services.AddSingleton<IManagerSheetEditor<StudentData>>(studentsSheet);
+        services.AddSingleton<IManagerSheetEditor<StatementSheetData>>(new StatementsSheet(connectData));
+        services.AddSingleton<IManagerSheetEditor<StudentData>>(new StudentsSheet(connectData));
         services.AddSingleton<IManagerSheetEditor<SubgroupOfPracticeData>>(new SubgroupsOfPracticeSheet(connectData));
         services.AddSingleton<IManagerSheetEditor<TeacherData>>(new TeachersSheet(connectData));
 
         services.AddSingleton<IGradeSheetEditor>(
-            new StudentsStatementInSubgroups(statementsSheet, studentsSheet, connectData));
+            new StudentsStatementInSubgroups(connectData));
     }
 }

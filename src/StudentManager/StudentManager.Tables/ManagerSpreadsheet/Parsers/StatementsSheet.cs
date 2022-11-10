@@ -16,7 +16,7 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
             new((data, value) =>
             {
                 string path = value.ToString();
-                data.SpreadsheetId = path.Split("https://docs.google.com/spreadsheets/d/")[1].Split("/edit")[0];
+                data.SpreadsheetId = GoogleSheetEditor.GetSpreadsheetIdFromLink(path);
                 data.SheetId = Convert.ToInt32(path.Split("#gid=")[1]);
             }, true),
         ["Ячейка начала студентов"] =

@@ -2,6 +2,7 @@
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
 using Google.Apis.Services;
+using MajorDimensionEnum = Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource.GetRequest.MajorDimensionEnum;
 
 namespace StudentManager.Tables;
 
@@ -41,9 +42,11 @@ internal class GoogleSheetEditor
         _sheetNameAndRange = sheetNameAndRange;
     }
 
-    public async Task<IList<IList<object>>> GetSheet()
+    public async Task<IList<IList<object>>> GetSheet(MajorDimensionEnum majorDimension = MajorDimensionEnum.ROWS)
     {
-        SpreadsheetsResource.ValuesResource.GetRequest request = _service.Spreadsheets.Values.Get(_spreadsheetId, _sheetNameAndRange);
+        SpreadsheetsResource.ValuesResource.GetRequest request =
+            _service.Spreadsheets.Values.Get(_spreadsheetId, _sheetNameAndRange);
+        request.MajorDimension = majorDimension;
 
         ValueRange response = await request.ExecuteAsync();
         IList<IList<object>> sheet = response.Values;
@@ -67,6 +70,11 @@ internal class GoogleSheetEditor
         var updateRequest = _service.Spreadsheets.Values.Update(body, _spreadsheetId, _sheetNameAndRange);
         updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
         updateRequest.Execute();
+    }
+
+    public static string GetSpreadsheetIdFromLink(string link)
+    {
+        return link.Split("https://docs.google.com/spreadsheets/d/")[1].Split("/edit")[0];
     }
 
     public static SheetsService GetSheetsService(SheetConnectData sheetConnectData)
