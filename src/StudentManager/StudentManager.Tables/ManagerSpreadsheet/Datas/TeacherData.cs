@@ -1,6 +1,6 @@
 ﻿namespace StudentManager.Tables.Models;
 
-public record TeacherData : ISheetRowData
+public record TeacherData : ISheetRowData, IPerson
 {
     public string Id { get; set; }
     public string Surname { get; set; }
