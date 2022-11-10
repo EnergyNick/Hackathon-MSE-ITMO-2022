@@ -11,6 +11,7 @@ public enum GrateType
     Ratio,
     Percent,
     Sum,
+    FiveRatio,
 };
 
 public record StatementSheetData : ISheetRowData

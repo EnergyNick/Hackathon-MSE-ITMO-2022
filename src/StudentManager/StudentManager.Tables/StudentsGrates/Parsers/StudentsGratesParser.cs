@@ -25,16 +25,17 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             $"{studentsStartCell}:{studentsStartCell.Remove(studentsStartCell.ToList().FindIndex((c) => c >= '0' && c <= '9'))}";
 
         string GetNameAndRangeNext(string nameSheet, string startCell) =>
-            $"{nameSheet}!{GetPathInSheet(startCell)}";
+            $"'{nameSheet}'!{GetPathInSheet(startCell)}";
         
         string GetNameAndRange(string nameSheet, string startCell) =>
-            $"{nameSheet}!{startCell}";
+            $"'{nameSheet}'!{startCell}";
 
         string GetMaxValue(StatementSheetData statementData) => statementData.GrateType switch
         {
             GrateType.Ratio => 1.ToString(),
             GrateType.Percent => 100.ToString(),
             GrateType.Sum => statementData.MaximumGrateCell,
+            GrateType.FiveRatio => 5.ToString(),
         };
         
         var studentsGrates = (await _studentsSheet.ReadAll()).ToDictionary(GetFCsStudent,
@@ -68,25 +69,31 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;
 
             var columnsPartsStatements = new List<ColumnPartStatement>();
-            foreach (var detailsStatement in allStatementsDetails[statement.Id])
+            if (allStatementsDetails.TryGetValue(statement.Id, out var detailsStatements))
             {
-                var details = await new GoogleSheetEditor(connectStatementData, service,
-                    GetNameAndRangeNext(nameSheet, detailsStatement.PointsStartCell)).GetSheet();
-                var list = new List<string>();
-                foreach (var detail in details)
-                    if (detail.Count > 0)
-                        list.Add(detail[0].ToString());
-                    else
-                        list.Add("");
+                foreach (var detailsStatement in detailsStatements)
+                {
+                    var details = await new GoogleSheetEditor(connectStatementData, service,
+                        GetNameAndRangeNext(nameSheet, detailsStatement.PointsStartCell)).GetSheet();
+                    var list = new List<string>();
+                    foreach (var detail in details)
+                        if (detail.Count > 0)
+                            list.Add(detail[0].ToString());
+                        else
+                            list.Add("");
 
-                string maxPoints = (await new GoogleSheetEditor(connectStatementData, service,
-                    GetNameAndRange(nameSheet, detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
+                    string maxPoints = (await new GoogleSheetEditor(connectStatementData, service,
+                        GetNameAndRange(nameSheet, detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
                 
-                columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, list, maxPoints));
+                    columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, list, maxPoints));
+                }
             }
 
             for (int i = 0; i < students.Count && i < pointsStudents.Count; i++)
             {
+                if (students[i].Count < 1 || pointsStudents.Count < 1)
+                    continue;;
+                
                 var student = students[i][0].ToString().Split();
                 var pointsStudent = pointsStudents[i][0].ToString();
 
