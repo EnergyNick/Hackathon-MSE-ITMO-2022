@@ -63,18 +63,18 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
 
     public virtual async Task<Result<AcademicSubjectData[]>> ReadByIds(IEnumerable<string> ids)
     {
-        if (!AppCache.TryGetValue<Dictionary<string, AcademicSubjectData[]>>(CacheDictByIdKey, out var dict))
+        if (!AppCache.TryGetValue<Dictionary<string, AcademicSubjectData>>(CacheDictByIdKey, out var dict))
         {
             await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, AcademicSubjectData[]>>(CacheDictByIdKey);
+            dict = AppCache.Get<Dictionary<string, AcademicSubjectData>>(CacheDictByIdKey);
         }
 
         if (dict == null)
             return Result.Fail<AcademicSubjectData[]>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return ids
-            .Select(id => dict.TryGetValue(id, out var value) ? value : Array.Empty<AcademicSubjectData>())
-            .SelectMany(x => x)
+            .Where(id => dict.ContainsKey(id))
+            .Select(id => dict[id])
             .ToArray();
     }
 }
