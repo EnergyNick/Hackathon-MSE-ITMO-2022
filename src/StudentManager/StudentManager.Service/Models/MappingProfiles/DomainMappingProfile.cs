@@ -29,6 +29,7 @@ public class DomainMappingProfile : Profile
             .ForMember(x => x.LastName, dest => dest.MapFrom(x => x.Surname))
             .ForMember(x => x.TelegramId, dest => dest.MapFrom(x => x.Telegram));
 
-        CreateMap<SubgroupOfPracticeData, PracticeSubgroupDto>();
+        CreateMap<SubgroupOfPracticeData, PracticeSubgroupDto>()
+            .ForMember(x => x.LinkForHomerworks, dest => dest.MapFrom(x => x.ResourceFromSendingHomerworks));
     }
 }
