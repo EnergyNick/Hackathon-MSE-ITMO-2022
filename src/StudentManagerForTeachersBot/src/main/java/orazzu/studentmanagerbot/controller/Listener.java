@@ -64,9 +64,9 @@ public class Listener implements UpdatesListener {
         return switch (text) {
             case "/start" -> teacherService.register(userId, username);
             
-            case "/post_file" -> teacherService.notImplemented(userId);
+            case "/post_file" -> teacherService.postFile(userId, username);
             
-            case "/post_link" -> teacherService.notImplemented(userId);
+            case "/post_link" -> teacherService.postLink(userId, username);
             
             default -> teacherService.unknownCmd(userId);
         };
@@ -80,6 +80,10 @@ public class Listener implements UpdatesListener {
         Message message = query.message();
         
         return switch (menuButton[0]) {
+            case "file" -> teacherService.notImplemented(userId);
+    
+            case "link" -> teacherService.notImplemented(userId);
+            
             default -> teacherService.unknownCallback(userId, message);
         };
     }
