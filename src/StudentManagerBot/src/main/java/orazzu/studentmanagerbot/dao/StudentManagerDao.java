@@ -13,6 +13,7 @@ import orazzu.studentmanagerbot.view.StudentSubjectView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,11 +52,11 @@ public class StudentManagerDao extends DaoBase {
             }
             
             else {
-                LOGGER.info("Failed to get subjects by {}: {}", user, response);
+                LOGGER.info("Failed to get subjects by {}: code={}, body={}", user, response.code(), json);
                 
                 throw toStudentManagerException(json);
             }
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
             throw wrapAsUnknownError(e);
         }
     }
@@ -77,43 +78,47 @@ public class StudentManagerDao extends DaoBase {
                 final FullSubjectDto subjectDto = studentSubjectDto.getSubject();
                 final LecturerDto lecturerDto = subjectDto.getLecturer();
                 final SubgroupOfSubjectDto subgroupDto = studentSubjectDto.getSubgroupOfSubject();
-                final TeacherDto teacherDto = subgroupDto.getTeacher();
+                final TeacherDto teacherDto = subgroupDto != null? subgroupDto.getTeacher() : null;
                 
                 return new StudentSubjectView(
-                        new Subject(
-                                subjectDto.getId(),
-                                subjectDto.getName(),
-                                new Lecturer(new Person(
-                                        new User(lecturerDto.getTgId(), lecturerDto.getTgUsername()),
-                                        lecturerDto.getId(),
-                                        lecturerDto.getEmail(),
-                                        lecturerDto.getFirstName(),
-                                        lecturerDto.getLastName(),
-                                        lecturerDto.getPatronymic()
-                                )),
-                                subjectDto.getGroupId(),
-                                subjectDto.getCscLink(),
-                                subjectDto.getSemester()
-                        ),
-                        new SubgroupOfSubject(
-                                subgroupDto.getId(),
-                                subgroupDto.getLinkToCsc(),
-                                new Teacher(new Person(
-                                        new User(teacherDto.getTgId(), teacherDto.getTgUsername()),
-                                        teacherDto.getId(),
-                                        teacherDto.getEmail(),
-                                        teacherDto.getFirstName(),
-                                        teacherDto.getLastName(),
-                                        teacherDto.getPatronymic()
-                                ))
-                        ),
+                        subjectDto != null?
+                                new Subject(
+                                        subjectDto.getId(),
+                                        subjectDto.getName(),
+                                        lecturerDto != null?
+                                                new Lecturer(new Person(
+                                                        new User(lecturerDto.getTgId(), lecturerDto.getTelegramUsername()),
+                                                        lecturerDto.getId(),
+                                                        lecturerDto.getEmail(),
+                                                        lecturerDto.getFirstName(),
+                                                        lecturerDto.getLastName(),
+                                                        lecturerDto.getPatronymic()
+                                                )) : null,
+                                        subjectDto.getGroupId(),
+                                        subjectDto.getCscLink(),
+                                        subjectDto.getSemester()
+                                ) : null,
+                        subgroupDto != null?
+                                new SubgroupOfSubject(
+                                        subgroupDto.getId(),
+                                        subgroupDto.getLinkToCsc(),
+                                        teacherDto != null?
+                                                new Teacher(new Person(
+                                                        new User(teacherDto.getTgId(), teacherDto.getTelegramUsername()),
+                                                        teacherDto.getId(),
+                                                        teacherDto.getEmail(),
+                                                        teacherDto.getFirstName(),
+                                                        teacherDto.getLastName(),
+                                                        teacherDto.getPatronymic()
+                                                )) : null
+                                ) : null,
                         studentSubjectDto.getLinkToLectorStatement(),
                         studentSubjectDto.getLinkToSubgroupStatement()
                 );
             }
             
             else {
-                LOGGER.info("Failed to get subject by id {} for {}", subjectId, user);
+                LOGGER.info("Failed to get subject by id {} for {}: code={} body={}", subjectId, user, response.code(), json);
                 
                 throw toStudentManagerException(json);
             }

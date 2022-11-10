@@ -64,6 +64,10 @@ public class Listener implements UpdatesListener {
         return switch (text) {
             case "/start" -> teacherService.register(userId, username);
             
+            case "/post_file" -> teacherService.notImplemented(userId);
+            
+            case "/post_link" -> teacherService.notImplemented(userId);
+            
             default -> teacherService.unknownCmd(userId);
         };
     }

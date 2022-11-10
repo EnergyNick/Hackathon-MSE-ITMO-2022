@@ -83,6 +83,11 @@ public class StudentService extends ServiceBase {
     }
     
     
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> notImplemented(Long userId) {
+        return List.of(new SendMessage(userId, "Ещё не реализовано"));
+    }
+    
+    
     public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> notCmd(Long userId) {
         return List.of(new SendMessage(userId, "Я понимаю только команды"));
     }

@@ -29,6 +29,11 @@ public class TeacherService extends ServiceBase {
     }
     
     
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> notImplemented(Long userId) {
+        return List.of(new SendMessage(userId, "Ещё не реализовано"));
+    }
+    
+    
     public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> unknownCmd(Long userId) {
         return List.of(new SendMessage(userId, "Неизвестная команда"));
     }

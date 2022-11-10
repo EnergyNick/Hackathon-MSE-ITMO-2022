@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 public class LecturerDto {
     private Long tgId;
-    private String tgUsername;
+    private String telegramUsername;
     private String id;
     private String email;
     private String firstName;

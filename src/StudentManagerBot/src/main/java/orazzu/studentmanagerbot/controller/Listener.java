@@ -84,9 +84,9 @@ public class Listener implements UpdatesListener {
         return switch (menuButton[0]) {
             case "subjects" -> studentService.getStudentSubjectCallback(userId, username, menuButton[1], message);
             
-            case "grades" -> null;
+            case "grades" -> studentService.notImplemented(userId);
             
-            case "hometasks" -> null;
+            case "hometasks" -> studentService.notImplemented(userId);
             
             default -> studentService.unknownCallback(userId, message);
         };

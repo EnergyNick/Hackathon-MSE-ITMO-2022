@@ -26,7 +26,7 @@ public class EntityToMessageMapper {
         if (lecturer != null)
             msgBuilder
                     .appendKeyValue("Лектор", lecturer.getPerson().getName())
-                    .appendKeyValue("TG", lecturer.getPerson().getUser().getTgUsername())
+                    .appendKeyValueTg("TG", lecturer.getPerson().getUser().getTgUsername())
                     .appendKeyValue("Почта", lecturer.getPerson().getEmail());
     
         msgBuilder.appendKeyValue("Wiki", cscLink);
@@ -43,7 +43,7 @@ public class EntityToMessageMapper {
         
             msgBuilder
                     .appendKeyValue("Преподаватель", teacher.getPerson().getName())
-                    .appendKeyValue("TG", teacher.getPerson().getUser().getTgUsername())
+                    .appendKeyValueTg("TG", teacher.getPerson().getUser().getTgUsername())
                     .appendKeyValue("Почта", teacher.getPerson().getEmail())
                     .appendKeyValue("Wiki", subgroup.getLinkToCsc());
         }
