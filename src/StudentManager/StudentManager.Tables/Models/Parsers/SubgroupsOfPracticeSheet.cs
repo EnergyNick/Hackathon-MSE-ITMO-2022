@@ -4,12 +4,12 @@ internal class SubgroupsOfPracticeSheet : BaseGoogleSheetFromRowEditor<SubgroupO
 {
     protected override Dictionary<string, ColumnCondition<SubgroupOfPracticeData>> ColumnsDatas { get; } = new()
     {
-        ["ID"] =
-            new((data, value) => data.Id = value.ToString(), true),
         ["ID предмета"] =
             new((data, value) => data.IdSubject = value.ToString(), true),
         ["ID преподавателя"] =
             new((data, value) => data.IdTeacher = value.ToString(), true),
+        ["Ресурс, куда отправлять ДЗ"] =
+            new((data, value) => data.ResourceFromSendingHomerworks = value.ToString(), false),
         ["CSC ссылка"] =
             new((data, value) => data.LinkToCSC = value.ToString(), true),
     };
@@ -20,5 +20,10 @@ internal class SubgroupsOfPracticeSheet : BaseGoogleSheetFromRowEditor<SubgroupO
         : base(sheetConnectData)
     {
         
+    }
+
+    protected override void InitAdditionalyParsedData(SubgroupOfPracticeData data)
+    {
+        data.Id = $"{data.IdTeacher} - {data.IdSubject}";
     }
 }

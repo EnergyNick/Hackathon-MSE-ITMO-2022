@@ -21,7 +21,7 @@ public interface IGradeSheetEditor
 
 internal class StudentsStatementInSubgroups : IGradeSheetEditor
 {
-    private record ColumnPartStatemenet(string Name, List<string> Values, string MaxValue);
+    private record ColumnPartStatement(string Name, List<string> Values, string MaxValue);
     
     private readonly StatementsSheet _statementsSheet;
     private readonly StudentsSheet _studentsSheet;
@@ -42,6 +42,12 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
 
         string GetPathInSheet(string studentsStartCell) =>
             $"{studentsStartCell}:{studentsStartCell.Remove(studentsStartCell.ToList().FindIndex((c) => c >= '0' && c <= '9'))}";
+
+        string GetNameAndRangeNext(string nameSheet, string startCell) =>
+            $"{nameSheet}!{GetPathInSheet(startCell)}";
+        
+        string GetNameAndRange(string nameSheet, string startCell) =>
+            $"{nameSheet}!{startCell}";
 
         string GetMaxValue(StatementSheetData statementData) => statementData.GrateType switch
         {
@@ -69,19 +75,22 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         foreach (var statement in allStatements)
         {
             var connectStatementData = new SheetConnectData(statement.SpreadsheetId, _sheetConnect.Configuration);
-            var studentsStatementSheetEditor = new GoogleSheetEditor(connectStatementData, statement.SheetId,
-                GetPathInSheet(statement.StudentsStartCell));
+            var service = GoogleSheetEditor.GetSheetsService(connectStatementData);
+            var nameSheet = await GoogleSheetEditor.GetSheetNameByID(service, statement.SpreadsheetId, statement.SheetId);
+
+            var studentsStatementSheetEditor = new GoogleSheetEditor(connectStatementData, service,
+                GetNameAndRangeNext(nameSheet, statement.StudentsStartCell));
             var students = studentsStatementSheetEditor.GetSheet().Result;
 
-            var pointsStudentsSheetEditor = new GoogleSheetEditor(connectStatementData, statement.SheetId,
-                GetPathInSheet(statement.PointsStartCell));
+            var pointsStudentsSheetEditor = new GoogleSheetEditor(connectStatementData, service,
+                GetNameAndRangeNext(nameSheet, statement.PointsStartCell));
             var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;
 
-            var columnsPartsStatements = new List<ColumnPartStatemenet>();
+            var columnsPartsStatements = new List<ColumnPartStatement>();
             foreach (var detailsStatement in allStatementsDetails[statement.Id])
             {
-                var details = await new GoogleSheetEditor(connectStatementData, statement.SheetId,
-                    GetPathInSheet(detailsStatement.PointsStartCell)).GetSheet();
+                var details = await new GoogleSheetEditor(connectStatementData, service,
+                    GetNameAndRangeNext(nameSheet, detailsStatement.PointsStartCell)).GetSheet();
                 var list = new List<string>();
                 foreach (var detail in details)
                     if (detail.Count > 0)
@@ -89,10 +98,10 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                     else
                         list.Add("");
 
-                string maxPoints = (await new GoogleSheetEditor(connectStatementData, statement.SheetId,
-                    GetPathInSheet(detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
+                string maxPoints = (await new GoogleSheetEditor(connectStatementData, service,
+                    GetNameAndRange(nameSheet, detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
                 
-                columnsPartsStatements.Add(new ColumnPartStatemenet(detailsStatement.Title, list, maxPoints));
+                columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, list, maxPoints));
             }
 
             for (int i = 0; i < students.Count && i < pointsStudents.Count; i++)

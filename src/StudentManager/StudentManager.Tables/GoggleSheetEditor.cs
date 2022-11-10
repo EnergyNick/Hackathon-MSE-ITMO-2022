@@ -16,22 +16,29 @@ internal class GoogleSheetEditor
     public GoogleSheetEditor(SheetConnectData sheetConnectData, int sheetId)
     {
         _spreadsheetId = sheetConnectData.SpreadsheetId;
-        InitService(sheetConnectData);
-        _sheetNameAndRange = GetSheetNameByID(sheetId).Result;
+        _service = GetSheetsService(sheetConnectData);
+        _sheetNameAndRange = GetSheetNameByID(_service, sheetConnectData.SpreadsheetId, sheetId).Result;
     }
 
     public GoogleSheetEditor(SheetConnectData sheetConnectData, string sheetNameAndRange)
     {
         _spreadsheetId = sheetConnectData.SpreadsheetId;
-        InitService(sheetConnectData);
+        _service = GetSheetsService(sheetConnectData);
         _sheetNameAndRange = sheetNameAndRange;
     }
     
     public GoogleSheetEditor(SheetConnectData sheetConnectData, int sheetId, string sheetRange)
     {
         _spreadsheetId = sheetConnectData.SpreadsheetId;
-        InitService(sheetConnectData);
-        _sheetNameAndRange = $"'{GetSheetNameByID(sheetId).Result}'!{sheetRange}";
+        _service = GetSheetsService(sheetConnectData);
+        _sheetNameAndRange = $"'{GetSheetNameByID(_service, sheetConnectData.SpreadsheetId, sheetId).Result}'!{sheetRange}";
+    }
+
+    public GoogleSheetEditor(SheetConnectData sheetConnectData, SheetsService sheetsService, string sheetNameAndRange)
+    {
+        _spreadsheetId = sheetConnectData.SpreadsheetId;
+        _service = sheetsService;
+        _sheetNameAndRange = sheetNameAndRange;
     }
 
     public async Task<IList<IList<object>>> GetSheet()
@@ -62,12 +69,12 @@ internal class GoogleSheetEditor
         updateRequest.Execute();
     }
 
-    private void InitService(SheetConnectData sheetConnectData)
+    public static SheetsService GetSheetsService(SheetConnectData sheetConnectData)
     {
         string jsonToken = sheetConnectData.Configuration.GetSection(_keyFromGetGoogleAPIToken).Value;
         var credential = GoogleCredential.FromJson(jsonToken).UnderlyingCredential as ServiceAccountCredential;
         
-        _service = new SheetsService(
+        return new SheetsService(
             new BaseClientService.Initializer()
             {
                 HttpClientInitializer = credential,
@@ -75,12 +82,12 @@ internal class GoogleSheetEditor
         );
     }
     
-    public async Task<string> GetSheetNameByID(int sheetID)
+    public static async Task<string> GetSheetNameByID(SheetsService service, string spreadsheetId, int sheetID)
     {
         var ranges = Array.Empty<string>();
         bool includeGridData = false;
 
-        SpreadsheetsResource.GetRequest request = _service.Spreadsheets.Get(_spreadsheetId);
+        SpreadsheetsResource.GetRequest request = service.Spreadsheets.Get(spreadsheetId);
         request.Ranges = ranges;
         request.IncludeGridData = includeGridData;
 
