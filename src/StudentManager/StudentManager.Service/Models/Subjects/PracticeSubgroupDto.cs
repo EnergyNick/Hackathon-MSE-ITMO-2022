@@ -7,5 +7,5 @@ public record PracticeSubgroupDto
     public string Id { get; init; }
     public string LinkToCSC { get; init; }
     public TeacherDto Teacher { get; set; }
-    public string LinkForHomerworks { get; set; }
+    public string LinkForHomeworks { get; set; }
 }

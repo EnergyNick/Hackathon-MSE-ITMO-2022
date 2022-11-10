@@ -110,7 +110,7 @@ public class StudentController : ExtendedMappingController
             lectorStatement = CreateGoogleTablesUrl(sheetData);
 
         var subjectDto = Mapper.Map<SubjectDto>(subject.Value);
-        subjectDto.Lector = Mapper.Map<TeacherDto>(lector.Value);
+        subjectDto.Lecturer = Mapper.Map<TeacherDto>(lector.Value);
 
         return Ok(new UserSubjectInfoDto(subjectDto, subgroupDto, lectorStatement, practiceStatement));
     }
