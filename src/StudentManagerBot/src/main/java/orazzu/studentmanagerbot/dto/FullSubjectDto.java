@@ -4,7 +4,6 @@ package orazzu.studentmanagerbot.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import orazzu.studentmanagerbot.model.Lecturer;
 
 
 @NoArgsConstructor

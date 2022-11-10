@@ -74,18 +74,6 @@ public class StudentManagerDao extends DaoBase {
             
             if (response.isSuccessful()) {
                 StudentSubjectDto studentSubjectDto = GSON.fromJson(json, StudentSubjectDto.class);
-                List<Subject> subjects = new ArrayList<>();
-                GSON.fromJson(json, new TypeToken<List<SubjectDto>>() {
-                }).forEach(
-                        subjectDto -> subjects.add(
-                                new Subject(
-                                        subjectDto.getId(),
-                                        subjectDto.getName(),
-                                        null, null, null, null
-                                )
-                        )
-                );
-                
                 final FullSubjectDto subjectDto = studentSubjectDto.getSubject();
                 final LecturerDto lecturerDto = subjectDto.getLecturer();
                 final SubgroupOfSubjectDto subgroupDto = studentSubjectDto.getSubgroupOfSubject();

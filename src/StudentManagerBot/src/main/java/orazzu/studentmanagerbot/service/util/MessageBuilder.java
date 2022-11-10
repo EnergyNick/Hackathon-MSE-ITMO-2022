@@ -1,4 +1,4 @@
-package orazzu.studentmanagerbot.service;
+package orazzu.studentmanagerbot.service.util;
 
 
 import com.pengrad.telegrambot.model.MessageEntity;

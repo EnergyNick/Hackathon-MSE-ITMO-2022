@@ -66,7 +66,7 @@ public class Listener implements UpdatesListener {
             
             case "/get_subject" -> studentService.getSubjects(userId, username);
             
-            case "/get_rating" -> studentService.getRating(userId, username);
+            case "/get_grades" -> studentService.getRating(userId, username);
             
             case "/get_hometasks" -> studentService.getHometasks(userId, username);
             
@@ -84,7 +84,7 @@ public class Listener implements UpdatesListener {
         return switch (menuButton[0]) {
             case "subjects" -> studentService.getStudentSubjectCallback(userId, username, menuButton[1], message);
             
-            case "rating" -> null;
+            case "grades" -> null;
             
             case "hometasks" -> null;
             
