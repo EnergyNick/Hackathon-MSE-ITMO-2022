@@ -11,6 +11,8 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
     private readonly string _cacheDictByGroupIdKey;
     private readonly string _cacheDictByTeacherIdKey;
 
+    protected override TimeSpan CacheLifeTime => TimeSpan.FromMinutes(6);
+
     public SubjectsTableWrapper(IManagerSheetEditor<AcademicSubjectData> sheet, IAppCache appCache, ILogger logger)
         : base(sheet, appCache, logger)
     {

@@ -75,7 +75,7 @@ public class GradesEditorWrapper : IGradesEditorWrapper
 
     protected virtual string CacheKey { get; }
     protected virtual string CacheDictByUserIdKey { get; }
-    protected virtual TimeSpan CacheLifeTime { get; } = TimeSpan.FromMinutes(2);
+    protected virtual TimeSpan CacheLifeTime { get; } = TimeSpan.FromMinutes(4);
 
     protected virtual MemoryCacheEntryOptions GetCacheOptions() =>
         new LazyCacheEntryOptions()
@@ -83,7 +83,10 @@ public class GradesEditorWrapper : IGradesEditorWrapper
             .RegisterPostEvictionCallback((key, _, reason, _) =>
             {
                 if (reason is EvictionReason.Expired or EvictionReason.TokenExpired)
+                {
+                    Logger.Information("Cache of {Service} updated after {Time}", GetType().Name, CacheLifeTime);
                     AppCache.GetOrAddAsync(key as string, async _ => await ReadAll(), GetCacheOptions());
+                }
             });
 
     protected virtual string CantFindByUserErrorMessage(string id)
