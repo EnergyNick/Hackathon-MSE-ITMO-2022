@@ -72,6 +72,9 @@ public class GradesEditorWrapper : IGradesEditorWrapper
                     AppCache.GetOrAddAsync(key as string, async _ => await ReadAll(), GetCacheOptions());
             });
 
-    protected virtual string CantFindByUserErrorMessage(string id) =>
-        $"Can't find element in {GetType().Name} by id {id}";
+    protected virtual string CantFindByUserErrorMessage(string id)
+    {
+        Logger.Warning("Can\'t find element in {Name} by id {Id}", GetType().Name, id);
+        return $"CANT_FIND_GRADES_BY_USER_ID";
+    }
 }

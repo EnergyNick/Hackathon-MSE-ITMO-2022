@@ -36,5 +36,9 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
             : Result.Fail(CantFindTgErrorMessage(telegramId));
     }
 
-    private string CantFindTgErrorMessage(string id) => $"Can't find telegram in {GetType().Name} by id {id}";
+    private string CantFindTgErrorMessage(string id)
+    {
+        Logger.Warning("Can\'t find telegram in {Name} by id {Id}", GetType().Name, id);
+        return "USER_NOT_FOUND_BY_TELEGRAM_USERNAME";
+    }
 }

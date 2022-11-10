@@ -72,7 +72,7 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
         catch (Exception e)
         {
             Logger.Error(e, "Error on getting all items in {ServiceName}", GetType().Name);
-            return new List<T>();
+            items = new List<T>();
         }
 
         AppCache.Add(CacheKey, items, GetCacheOptions());
@@ -93,5 +93,9 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
                     AppCache.GetOrAddAsync(key as string, async _ => await ReadAll(), GetCacheOptions());
             });
 
-    protected virtual string CantFindErrorMessage(string id) => $"Can't find element in {GetType().Name} by id {id}";
+    protected virtual string CantFindErrorMessage(string id)
+    {
+        Logger.Warning("Can\'t find element in {Name} by id {Id}", GetType().Name, id);
+        return "ELEMENT_NOT_FOUND_BY_ID";
+    }
 }
