@@ -1,23 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-
-namespace StudentManager.Tables.Models;
-
-public record GratePartData(string Name, string Value, string MaxValue);
-public record SubjectGrateData(string Name, string CurrentValue, string MaxValue, List<GratePartData> Parts);
-
-public record SubgroupOfStudentData
-{
-    public string SubjectId { get; set; }
-    public string? SubgroupId { get; set; }
-    public SubjectGrateData SubjectGrate { get; set; }
-}
-
-public record StudentGratesData(StudentData Student, List<SubgroupOfStudentData> Subgroups);
-
-public interface IGradeSheetEditor
-{
-    Task<List<StudentGratesData>> ReadAll();
-};
+﻿namespace StudentManager.Tables.Models;
 
 internal class StudentsStatementInSubgroups : IGradeSheetEditor
 {
@@ -44,16 +25,17 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             $"{studentsStartCell}:{studentsStartCell.Remove(studentsStartCell.ToList().FindIndex((c) => c >= '0' && c <= '9'))}";
 
         string GetNameAndRangeNext(string nameSheet, string startCell) =>
-            $"{nameSheet}!{GetPathInSheet(startCell)}";
+            $"'{nameSheet}'!{GetPathInSheet(startCell)}";
         
         string GetNameAndRange(string nameSheet, string startCell) =>
-            $"{nameSheet}!{startCell}";
+            $"'{nameSheet}'!{startCell}";
 
         string GetMaxValue(StatementSheetData statementData) => statementData.GrateType switch
         {
             GrateType.Ratio => 1.ToString(),
             GrateType.Percent => 100.ToString(),
             GrateType.Sum => statementData.MaximumGrateCell,
+            GrateType.FiveRatio => 5.ToString(),
         };
         
         var studentsGrates = (await _studentsSheet.ReadAll()).ToDictionary(GetFCsStudent,
@@ -87,25 +69,31 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             var pointsStudents = pointsStudentsSheetEditor.GetSheet().Result;
 
             var columnsPartsStatements = new List<ColumnPartStatement>();
-            foreach (var detailsStatement in allStatementsDetails[statement.Id])
+            if (allStatementsDetails.TryGetValue(statement.Id, out var detailsStatements))
             {
-                var details = await new GoogleSheetEditor(connectStatementData, service,
-                    GetNameAndRangeNext(nameSheet, detailsStatement.PointsStartCell)).GetSheet();
-                var list = new List<string>();
-                foreach (var detail in details)
-                    if (detail.Count > 0)
-                        list.Add(detail[0].ToString());
-                    else
-                        list.Add("");
+                foreach (var detailsStatement in detailsStatements)
+                {
+                    var details = await new GoogleSheetEditor(connectStatementData, service,
+                        GetNameAndRangeNext(nameSheet, detailsStatement.PointsStartCell)).GetSheet();
+                    var list = new List<string>();
+                    foreach (var detail in details)
+                        if (detail.Count > 0)
+                            list.Add(detail[0].ToString());
+                        else
+                            list.Add("");
 
-                string maxPoints = (await new GoogleSheetEditor(connectStatementData, service,
-                    GetNameAndRange(nameSheet, detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
+                    string maxPoints = (await new GoogleSheetEditor(connectStatementData, service,
+                        GetNameAndRange(nameSheet, detailsStatement.MaximumGrateCell)).GetSheet())[0][0].ToString();
                 
-                columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, list, maxPoints));
+                    columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, list, maxPoints));
+                }
             }
 
             for (int i = 0; i < students.Count && i < pointsStudents.Count; i++)
             {
+                if (students[i].Count < 1 || pointsStudents.Count < 1)
+                    continue;;
+                
                 var student = students[i][0].ToString().Split();
                 var pointsStudent = pointsStudents[i][0].ToString();
 
@@ -120,12 +108,11 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                     studentsParts.Add(new GratePartData(detailsStatement.Name,
                         detailsStatement.Values[i], detailsStatement.MaxValue));
 
-                studentData.Subgroups.Add(new SubgroupOfStudentData()
-                {
-                    SubjectId = statement.IdSubject,
-                    SubgroupId = statement.StatementType == StatementType.Practice ? statement.IdSubgroup : null,
-                    SubjectGrate = new SubjectGrateData(statement.BlockName, pointsStudent, GetMaxValue(statement), studentsParts),
-                });
+                studentData.Subgroups.Add(new SubgroupOfStudentData(
+                    statement.IdSubject,
+                    statement.StatementType == StatementType.Practice ? statement.IdSubgroup : null,
+                    new SubjectGrateData(statement.BlockName, pointsStudent, GetMaxValue(statement), studentsParts)
+                ));
             }
         }
 

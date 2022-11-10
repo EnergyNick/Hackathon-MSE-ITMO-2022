@@ -54,6 +54,7 @@ internal class StatementsSheet : BaseGoogleSheetFromRowEditor<StatementSheetData
         {
             "Соотношение" => GrateType.Ratio,
             "Проценты" => GrateType.Percent,
+            "Патибальная" => GrateType.FiveRatio,
             "Сумма" => GrateType.Sum,
         };
     }
