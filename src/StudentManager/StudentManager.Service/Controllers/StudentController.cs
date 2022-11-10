@@ -86,9 +86,9 @@ public class StudentController : ExtendedMappingController
         PracticeSubgroupDto? subgroupDto = null;
         string? practiceStatement = null;
         var subgroupInfo = userGradesInfo.Value.Subgroups.FirstOrDefault(x => x.SubjectId == subject.Value.Id);
-        if (subgroupInfo != null)
+        if (subgroupInfo is { SubgroupId: { } })
         {
-            var subgroup = await _subgroups.ReadById(subgroupInfo.SubgroupId!);
+            var subgroup = await _subgroups.ReadById(subgroupInfo.SubgroupId);
             if (subgroup.IsFailed)
                 return CreateFailResult(subgroup.Errors);
 
