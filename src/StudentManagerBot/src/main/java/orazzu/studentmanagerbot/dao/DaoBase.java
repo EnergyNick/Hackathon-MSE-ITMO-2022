@@ -4,7 +4,6 @@ package orazzu.studentmanagerbot.dao;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import orazzu.studentmanagerbot.dto.ErrorDto;
 import orazzu.studentmanagerbot.error.ErrorCode;
 import orazzu.studentmanagerbot.error.StudentManagerException;
 import org.slf4j.Logger;
@@ -24,6 +23,6 @@ public class DaoBase {
     
     
     protected StudentManagerException toStudentManagerException(String json) {
-        return new StudentManagerException(ErrorCode.valueOf(GSON.fromJson(json, ErrorDto.class).getErrorCode()));
+        return new StudentManagerException(ErrorCode.valueOf(json));
     }
 }

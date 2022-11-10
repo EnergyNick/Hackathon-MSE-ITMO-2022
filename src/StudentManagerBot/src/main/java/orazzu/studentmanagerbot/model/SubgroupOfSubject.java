@@ -9,11 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Subject {
+public class SubgroupOfSubject {
     private String id;
-    private String name;
-    private Lecturer lecturer;
-    private String groupId;
-    private String cscLink;
-    private String semester;
+    private String linkToCsc;
+    private Teacher teacher;
 }

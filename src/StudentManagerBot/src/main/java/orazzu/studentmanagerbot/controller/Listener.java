@@ -32,7 +32,7 @@ public class Listener implements UpdatesListener {
         for (Update update: updates) {
             LOGGER.debug("Got update: {}", update);
             
-            List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> actions = null;
+            List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> actions = List.of();
             
             final Message msg = update.message();
             
@@ -76,7 +76,20 @@ public class Listener implements UpdatesListener {
     
     
     private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processCallback(CallbackQuery query) {
-        return studentService.unknownCallback(query.from().id(), query.message());
+        String[] menuButton = query.data().split(":", 2);
+        Long userId = query.from().id();
+        String username = query.from().username();
+        Message message = query.message();
+        
+        return switch (menuButton[0]) {
+            case "subjects" -> studentService.getStudentSubjectCallback(userId, username, menuButton[1], message);
+            
+            case "rating" -> null;
+            
+            case "hometasks" -> null;
+            
+            default -> studentService.unknownCallback(userId, message);
+        };
     }
     
     
