@@ -1,45 +1,23 @@
 version: '3.9'
+x-php: &php
+  build: 
+    context: .
+    dockerfile: ./Dockerfile
+  volumes:
+    - "./:/app"
+  networks:
+    - internal
+  environment:
+    - APP_DEBUG=true
+    - DB_CONNECTION=sqlite
+    - DB_DATABASE=/app/database/database.sqlite
+    - APP_KEY:base64:d1k91AgNcf1g7t/SVxBwE3u4NFK/I3vMH8Gyzl2Rvrs=
+
 services:
   php:
-    build: 
-      context: .
-      dockerfile: ./Dockerfile
-    volumes:
-      - "./:/app"
     ports:
-      - "8080:80"
-    depends_on:
-      - postgres
-    networks:
-      - internal
-
-  postgres:
-    image: postgres
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: app
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
-    networks:
-      - internal
-
-  pgadmin:
-    container_name: pgadmin_container
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
-      PGADMIN_CONFIG_SERVER_MODE: 'False'
-    volumes:
-      - "./.pgadmin:/root/.pgadmin"
-    depends_on:
-      - postgres
-    ports:
-      - ${PGADMIN_PORT:-5050}:80
-    networks:
-      - internal
+    - "8080:80"
+    <<: *php
 
   composer:
     image: composer:2.1.12

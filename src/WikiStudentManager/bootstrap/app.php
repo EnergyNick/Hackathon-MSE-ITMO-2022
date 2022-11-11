@@ -23,9 +23,9 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+$app->withFacades();
 
-// $app->withEloquent();
+$app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -59,7 +59,11 @@ $app->singleton(
 |
 */
 
+$app->configure('cors');
 $app->configure('app');
+$app->configure('wiki');
+$app->configure('wiki_auth');
+$app->configure('data_wiki');
 
 /*
 |--------------------------------------------------------------------------
@@ -72,6 +76,9 @@ $app->configure('app');
 |
 */
 
+$app->middleware([
+    Fruitcake\Cors\HandleCors::class,
+]);
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
@@ -79,6 +86,10 @@ $app->configure('app');
 // $app->routeMiddleware([
 //     'auth' => App\Http\Middleware\Authenticate::class,
 // ]);
+
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\AuthMiddleware::class,
+]);
 
 /*
 |--------------------------------------------------------------------------
@@ -92,8 +103,11 @@ $app->configure('app');
 */
 
 // $app->register(App\Providers\AppServiceProvider::class);
-// $app->register(App\Providers\AuthServiceProvider::class);
+$app->register(Fruitcake\Cors\CorsServiceProvider::class);
+$app->register(App\Providers\AuthServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
+$app->register(\Anik\Form\FormRequestServiceProvider::class);
+
 
 /*
 |--------------------------------------------------------------------------
