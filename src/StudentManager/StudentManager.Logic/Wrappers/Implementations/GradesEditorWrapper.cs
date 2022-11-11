@@ -13,6 +13,8 @@ public class GradesEditorWrapper : IGradesEditorWrapper
     protected readonly IAppCache AppCache;
     protected readonly ILogger Logger;
 
+    private readonly object _updatingLock = new();
+
     private readonly ITableWrapper<StatementSheetData> _statements;
     private readonly ITableWrapper<StudentData> _students;
     private readonly ITableWrapper<TeacherData> _teachers;
@@ -90,6 +92,8 @@ public class GradesEditorWrapper : IGradesEditorWrapper
             return new List<StudentGratesData>();
         }
 
+        Logger.Information("Cache of {Service} updated, rate of refresh is {Time}", GetType().Name, CacheLifeTime);
+
         AppCache.Add(CacheKey, items, GetCacheOptions());
         AppCache.Add(CacheDictByUserIdKey, items.ToDictionary(x => x.Student.Id),
             GetCacheOptions());
@@ -105,11 +109,9 @@ public class GradesEditorWrapper : IGradesEditorWrapper
             .SetAbsoluteExpiration(CacheLifeTime, ExpirationMode.ImmediateEviction)
             .RegisterPostEvictionCallback((key, _, reason, _) =>
             {
-                if (reason is EvictionReason.Expired or EvictionReason.TokenExpired)
-                {
-                    Logger.Information("Cache of {Service} updated after {Time}", GetType().Name, CacheLifeTime);
+                if (reason is not (EvictionReason.Expired or EvictionReason.TokenExpired)) return;
+                lock (_updatingLock)
                     AppCache.GetOrAddAsync(key as string, async _ => await ReadAll(), GetCacheOptions());
-                }
             });
 
     protected virtual string CantFindByUserErrorMessage(string id)

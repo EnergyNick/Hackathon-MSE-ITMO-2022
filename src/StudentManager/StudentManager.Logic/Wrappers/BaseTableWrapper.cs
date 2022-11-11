@@ -14,6 +14,8 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
     protected readonly IAppCache AppCache;
     protected readonly ILogger Logger;
 
+    private readonly object _updatingLock = new();
+
     protected BaseTableWrapper(IManagerSheetEditor<T> sheet, IAppCache appCache, ILogger logger)
     {
         Sheet = sheet;
@@ -79,6 +81,8 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
             return new List<T>();
         }
 
+        Logger.Information("Cache of {Service} updated, rate of refresh is {Time}", GetType().Name, CacheLifeTime);
+
         AppCache.Add(CacheKey, items, GetCacheOptions());
         AppCache.Add(CacheDictByIdKey, items.ToDictionary(x => x.Id), GetCacheOptions());
         return items;
@@ -93,11 +97,9 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
             .SetAbsoluteExpiration(CacheLifeTime, ExpirationMode.ImmediateEviction)
             .RegisterPostEvictionCallback((key, _, reason, _) =>
             {
-                if (reason is EvictionReason.Expired or EvictionReason.TokenExpired)
-                {
-                    Logger.Information("Cache of {Service} updated after {Time}", GetType().Name, CacheLifeTime);
+                if (reason is not (EvictionReason.Expired or EvictionReason.TokenExpired)) return;
+                lock (_updatingLock)
                     AppCache.GetOrAddAsync(key as string, async _ => await ReadAll(), GetCacheOptions());
-                }
             });
 
     protected virtual string CantFindErrorMessage(string id)
