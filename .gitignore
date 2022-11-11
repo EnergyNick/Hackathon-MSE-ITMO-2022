@@ -482,3 +482,6 @@ replay_pid*
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/rider,intellij,java,visualstudiocode,aspnetcore
+
+**/target/
+**.log.gz
