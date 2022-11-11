@@ -1,25 +1,31 @@
-var builder = WebApplication.CreateBuilder(args);
+using Mcrio.Configuration.Provider.Docker.Secrets;
+using Serilog;
+using StudentManager.Service;
+using StudentManager.Service.Extensions;
+using StudentManager.Service.Logger;
 
-// Add services to the container.
 
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+Log.Logger = LoggerBuilder.CreateLogger();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var host = CreateHostBuilder(args).Build();
+    await host.RunServicesPreInitialization();
+    await host.RunAsync();
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Host terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+IHostBuilder CreateHostBuilder(string[] args) =>
+    Host.CreateDefaultBuilder(args)
+        .ConfigureAppConfiguration(config => config
+            .AddJsonFile("Properties/PrivateSettings.json", true, true)
+            .AddDockerSecrets())
+        .UseSerilog(Log.Logger)
+        .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
