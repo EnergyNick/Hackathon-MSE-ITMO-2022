@@ -109,4 +109,63 @@ public class TeachersController : ExtendedMappingController
 
         return Ok();
     }
+
+    [HttpPost("subject/{subjectId}/section/{sectionId}/attach/file")]
+    public async Task<ActionResult<int>> SendFileToCSCWiki(string subjectId, string sectionId,
+        [FromQuery]string tagName, IFormFile file)
+    {
+        if (!MimeTypes.TryGetMimeType(file.FileName, out var mimeType))
+            return BadRequest("INCORRECT_FILE");
+
+        var fileContent = new StreamContent(file.OpenReadStream());
+        fileContent.Headers.ContentType = new MediaTypeHeaderValue(mimeType);
+
+        var dataContent = new MultipartFormDataContent();
+        dataContent.Add(fileContent, "file", file.FileName);
+        dataContent.Add(new StringContent(file.FileName), "filename");
+
+        try
+        {
+            var response = await _client.PostAsync("https://api.test.projects-cabinet.ru/wiki/" + "upload", dataContent);
+            response.EnsureSuccessStatusCode();
+            Log.Information("Added file to CSC wiki: {Item}", response.ToString());
+        }
+        catch (HttpRequestException ex)
+        {
+            Log.Error(ex, "Invalid post file of name {Filename} and section {SectionId}", tagName, sectionId);
+            return new ObjectResult("CSC_TIMEOUT") { StatusCode = (int)HttpStatusCode.BadGateway };
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Invalid post file of name {Filename} and section {SectionId}", tagName, sectionId);
+            return BadRequest("REQUEST_INVALID");
+        }
+
+        var subjects = await _subjects.ReadById(subjectId);
+        if(subjects.IsFailed)
+            return CreateFailResult(subjects.Errors, HttpStatusCode.NotFound);
+
+        var link = new Uri(subjects.Value.LinkToCSC).LocalPath;
+        var titleLink = link[(link.LastIndexOf('/') + 1)..];
+        var result = new { section = sectionId, filename = file.FileName, tag = tagName, title = titleLink };
+        try
+        {
+            var response = await _client.PostAsync("https://api.test.projects-cabinet.ru/wiki/" + "append-file",
+                new StringContent(JsonSerializer.Serialize(result), Encoding.UTF8, "application/json"));
+            response.EnsureSuccessStatusCode();
+            Log.Information("Added file on page to CSC wiki: {Item}", response.ToString());
+        }
+        catch (HttpRequestException ex)
+        {
+            Log.Error(ex, "Invalid post file of name {Filename} and section {SectionId}", tagName, sectionId);
+            return new ObjectResult("CSC_TIMEOUT") { StatusCode = (int)HttpStatusCode.BadGateway };
+        }
+        catch (Exception e)
+        {
+            Log.Error(e, "Invalid post file of name {Filename} and section {SectionId}", tagName, sectionId);
+            return BadRequest("REQUEST_INVALID");
+        }
+
+        return Ok();
+    }
 }
