@@ -5,6 +5,7 @@ using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Serilog;
+using StudentManager.Logic.Wrappers;
 using StudentManager.Logic.Wrappers.Implementations;
 using StudentManager.Service.Models.Receive;
 using StudentManager.Service.Models.Subjects;
@@ -20,14 +21,13 @@ public class TeachersController : ExtendedMappingController
     private readonly SubjectsTableWrapper _subjects;
     private readonly TeachersTableWrapper _teachers;
     private readonly PracticeSubgroupsTableWrapper _subgroups;
-    private readonly GradesEditorWrapper _gradesEditor;
+    private readonly IGradesEditorWrapper _gradesEditor;
 
     public TeachersController(HttpClient client, IMapper mapper,
             SubjectsTableWrapper subjects,
             TeachersTableWrapper teachers,
             PracticeSubgroupsTableWrapper subgroups,
-            StudentsTableWrapper students,
-            GradesEditorWrapper gradesEditor
+            IGradesEditorWrapper gradesEditor
     )
         : base(mapper)
     {
@@ -66,7 +66,7 @@ public class TeachersController : ExtendedMappingController
     }
 
     [HttpPost("{telegramId}/subjects/total")]
-    public async Task<ActionResult<SubjectInfoDto[]>> GetTotalGradesSubjectsOfTeacher(string telegramId,
+    public async Task<ActionResult<SubjectInfoDto[]>> GetTotalGradesOfSubjects(string telegramId,
         [FromBody] SpreadsheetCreateDto dto)
     {
         var user = await _teachers.ReadByTelegramId(telegramId);
