@@ -31,8 +31,8 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         string GetNameAndRange(string nameSheet, string startCell) =>
             $"'{nameSheet}'!{startCell}";
         
-        string ParsePoints(string point) =>
-            point.Replace('.', ',');
+        string ParsePointsAndNumber(string point) =>
+            new string(point.Replace('.', ',').Where((c) => c is >= '0' and <= '9' or ',').ToArray());
 
         var studentsGrates = allStudents.ToDictionary(GetFCsStudent,
             (student) => new StudentGratesData(student, new()));
@@ -96,7 +96,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             string maxPointsOverallStudents;
             if (statement.GrateType == GrateType.Sum)
             {
-                maxPointsOverallStudents = ParsePoints(studentsValuesRanges[^1].Values[0][0].ToString());
+                maxPointsOverallStudents = ParsePointsAndNumber(studentsValuesRanges[^1].Values[0][0].ToString());
             }
             else
             {
@@ -114,7 +114,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                     continue;
                 
                 var student = students[i].ToString().Split();
-                var pointsStudent = ParsePoints(pointsStudents[i].ToString());
+                var pointsStudent = ParsePointsAndNumber(pointsStudents[i].ToString());
 
                 if (student.Length < 2)
                     continue;
@@ -142,9 +142,9 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         List<StatementSheetData> allStatements, List<SubgroupOfPracticeData> allSubgroups,
         List<TeacherData> allTeachers)
     {
-        string nameNewSheet = $"Сводка: {DateTime.Now}";
-        
         string GetIdSubgroup(string idSubject, string blockName) => $"{idSubject} - {blockName}";
+        
+        string nameNewSheet = $"Сводка: {DateTime.Now}";
 
         var subgroupToIdTeacher = allSubgroups.ToDictionary((subgroup) => subgroup.Id,
             (subgroup) => subgroup.IdTeacher);
@@ -154,7 +154,8 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
 
         var connectStatementData = new SheetConnectData(GoogleSheetEditor.GetSpreadsheetIdFromLink(spreadsheetLink),
             _sheetConnect.Configuration);
-        var sheetResult = new GoogleSheetEditor(connectStatementData, nameNewSheet);
+        var sheetService = GoogleSheetEditor.GetSheetsService(connectStatementData);
+        var sheetResult = new GoogleSheetEditor(connectStatementData, sheetService, nameNewSheet);
 
         var statementsGroupBySubjectId = new Dictionary<string, Dictionary<string, bool>>();
         int teachersCount = 0;
@@ -180,6 +181,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         }
 
         string[][] values = new string[studentsGrates.Count + 2][];
+        List<MergeCellsRequest> merges = new List<MergeCellsRequest>();
         for (var i = 0; i < values.Length; i++)
         {
             values[i] = new string[statementsGroupBySubjectId.Sum(
@@ -188,6 +190,16 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         }
 
         values[0][0] = "ФИО";
+        merges.Add(new MergeCellsRequest()
+        {
+            Range = new GridRange
+            {
+                StartColumnIndex = 0,
+                StartRowIndex = 0,
+                EndColumnIndex = 1,
+                EndRowIndex = 2,
+            },
+        });
         for (int i = 0; i < studentsGrates.Count; i++)
         {
             values[i + 2][0] = studentsGrates[i].Student.GetFCs();
@@ -203,6 +215,17 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                 foreach (var statements in statementsGroupByBlockName.Value)
                 {
                     values[1][i] = statements.Key;
+                    // merges.Add(new MergeCellsRequest()
+                    // {
+                    //     Range = new GridRange
+                    //     {
+                    //         StartColumnIndex = i,
+                    //         StartRowIndex = 0,
+                    //         EndColumnIndex = i + statementsGroupByBlockName.Value.Count - 1,
+                    //         EndRowIndex = 1,
+                    //     },
+                    // });
+                    
                     subgroupToIndex.Add(GetIdSubgroup(statementsGroupByBlockName.Key, statements.Key), i);
                     
                     ++i;
@@ -234,7 +257,25 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
                 }
             }
         }
+        
+        List<Request> requests = new List<Request>()
+        {
+            new Request()
+            {
+                AddSheet = new AddSheetRequest()
+                {
+                    Properties = new SheetProperties()
+                    {
+                        Title = nameNewSheet,
+                    },
+                },
+            },
+        };
 
+        await sheetResult.SetSheet(requests);
+        await sheetResult.SetSheet(values);
+
+        var sheetId = await GoogleSheetEditor.GetIdBySheetName(sheetService, sheetResult.SpreadsheetId, nameNewSheet);
         var border = new Border
         {
             ColorStyle = new ColorStyle()
@@ -253,60 +294,49 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         {
             StartColumnIndex = 0,
             StartRowIndex = 0,
-            EndColumnIndex = values.Length,
-            EndRowIndex = values[0].Length,
+            EndColumnIndex = values[0].Length,
+            EndRowIndex = values.Length,
+            SheetId = sheetId,
         };
-        List<Request> requests = new List<Request>()
+        
+        requests.Clear();
+        requests.Add(new Request()
         {
-            new Request()
+            UpdateBorders = new UpdateBordersRequest
             {
-                AddSheet = new AddSheetRequest()
+                Range = overallGridRange,
+                InnerHorizontal = border,
+                InnerVertical = border,
+                Bottom = border,
+                Left = border,
+                Right = border,
+                Top = border,
+            },
+        });
+        requests.Add(new Request()
+        {
+            AutoResizeDimensions = new AutoResizeDimensionsRequest
+            {
+                Dimensions = new DimensionRange
                 {
-                    Properties = new SheetProperties()
-                    {
-                        Title = nameNewSheet,
-                    },
+                    Dimension = "COLUMNS",
+                    StartIndex = overallGridRange.StartColumnIndex,
+                    EndIndex = overallGridRange.EndColumnIndex,
+                    SheetId = sheetId,
                 },
             },
-            // new Request()
-            // {
-            //     UpdateBorders = new UpdateBordersRequest
-            //     {
-            //         Range = overallGridRange,
-            //         InnerHorizontal = border,
-            //         InnerVertical = border,
-            //         Bottom = border,
-            //         Left = border,
-            //         Right = border,
-            //         Top = border,
-            //     },
-            // },
-            // new Request()
-            // {
-            //     AutoResizeDimensions = new AutoResizeDimensionsRequest
-            //     {
-            //         Dimensions = new DimensionRange
-            //         {
-            //             Dimension = "COLUMNS",
-            //             StartIndex = overallGridRange.StartColumnIndex,
-            //             EndIndex = overallGridRange.EndColumnIndex,
-            //         },
-            //     },
-            // },
-        };
-
-        /*List<Request> requests = new List<Request>()
+        });
+        
+        foreach (var merge in merges)
         {
-            new Request(
+            merge.Range.SheetId = sheetId;
+            merge.MergeType = "MERGE_ALL";
+            requests.Add(new Request()
             {
-                MergeCells = new MergeCellsRequest(
-                {
-                    
-                },
-            },
-        };*/
+                MergeCells = merge,
+            });
+        }
         
         await sheetResult.SetSheet(requests);
-        await sheetResult.SetSheet(values);
     }
 }
