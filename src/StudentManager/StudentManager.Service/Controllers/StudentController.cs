@@ -3,6 +3,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using StudentManager.Logic.Wrappers;
 using StudentManager.Logic.Wrappers.Implementations;
+using StudentManager.Service.Models.Receive;
 using StudentManager.Service.Models.Subjects;
 using StudentManager.Service.Models.Users;
 using StudentManager.Tables.Models;
@@ -45,6 +46,24 @@ public class StudentController : ExtendedMappingController
             return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
 
         return Mapper.Map<StudentDto>(user.Value);
+    }
+
+    [HttpPost("{telegramId}/subjects/total")]
+    public async Task<ActionResult<SubjectInfoDto[]>> GetTotalGradesOfSubjects(string telegramId,
+        [FromBody] SpreadsheetCreateDto dto)
+    {
+        var user = await _teachers.ReadByTelegramId(telegramId);
+        if (user.IsFailed)
+            return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
+
+        var userGrades = await _gradesEditor.ReadByUserId(user.Value.Id);
+        if (userGrades.IsFailed)
+            return NotFound("CANT_FOUND_USER_GRADES");
+
+        var result =
+            await _gradesEditor.WriteToSpreadsheet(dto.LinkToSpreadsheet,
+                new List<StudentGratesData> { userGrades.Value });
+        return CreateResponseByResult(result);
     }
 
     [HttpGet("{telegramId}/subjects")]
