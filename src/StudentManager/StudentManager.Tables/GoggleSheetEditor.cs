@@ -72,7 +72,7 @@ internal class GoogleSheetEditor
         return response.ValueRanges;
     }
 
-    public void SetSheet(IList<IList<object>> sheet)
+    public async Task SetSheet(IList<IList<object>> sheet)
     {
         ValueRange body = new ValueRange()
         {
@@ -81,10 +81,10 @@ internal class GoogleSheetEditor
         
         var updateRequest = _service.Spreadsheets.Values.Update(body, _spreadsheetId, _sheetNameAndRange);
         updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-        updateRequest.Execute();
+        await updateRequest.ExecuteAsync();
     }
     
-    public void SetSheet(IList<Request> requests)
+    public async Task SetSheet(IList<Request> requests)
     {
         var body = new BatchUpdateSpreadsheetRequest()
         {
@@ -93,7 +93,7 @@ internal class GoogleSheetEditor
 
         var updateRequest = _service.Spreadsheets.BatchUpdate(body, _spreadsheetId);
         //updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
-        updateRequest.Execute();
+        await updateRequest.ExecuteAsync();
     }
 
     public static string GetSpreadsheetIdFromLink(string link)

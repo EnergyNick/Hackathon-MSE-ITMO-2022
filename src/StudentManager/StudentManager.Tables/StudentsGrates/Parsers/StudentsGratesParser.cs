@@ -138,7 +138,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         return studentsGrates.Values.ToList();
     }
 
-    public async Task Write(string spreadsheetLink, List<StudentGratesData> studentsGrates,
+    public async Task WriteToSpreadsheet(string spreadsheetLink, List<StudentGratesData> studentsGrates,
         List<StatementSheetData> allStatements, List<SubgroupOfPracticeData> allSubgroups,
         List<TeacherData> allTeachers)
     {
@@ -306,7 +306,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             },
         };*/
         
-        sheetResult.SetSheet(requests);
-        sheetResult.SetSheet(values);
+        await sheetResult.SetSheet(requests);
+        await sheetResult.SetSheet(values);
     }
 }
