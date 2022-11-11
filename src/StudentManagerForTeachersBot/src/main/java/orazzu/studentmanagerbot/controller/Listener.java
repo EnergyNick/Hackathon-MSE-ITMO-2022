@@ -63,10 +63,9 @@ public class Listener implements UpdatesListener {
         
         return switch (text) {
             case "/start" -> teacherService.register(userId, username);
-            
             case "/post_file" -> teacherService.postFile(userId, username);
-            
             case "/post_link" -> teacherService.postLink(userId, username);
+            case "/count_total_grades" -> teacherService.countTotalGrades(userId, username);
             
             default -> teacherService.unknownCmd(userId);
         };
@@ -79,6 +78,6 @@ public class Listener implements UpdatesListener {
     
     
     private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processText(Message msg) {
-        return teacherService.processText(msg.chat().id(), msg.text());
+        return teacherService.processText(msg.chat().id(), msg.chat().username(), msg.text());
     }
 }

@@ -47,6 +47,17 @@ public class TeacherService extends ServiceBase {
     }
     
     
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> countTotalGrades(
+            Long userId, String username) {
+        
+        userIdToState.put(userId, new State(StateType.COUNT_TOTAL_GRADES, new ArrayList<>()));
+        
+        return List.of(new SendMessage(userId, """
+                Введите ссылку на ведомость
+                У вас должен быть доступ на редактирование"""));
+    }
+    
+    
     public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> notImplemented(Long userId, Message msg) {
         List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> response = new ArrayList<>();
         
@@ -74,7 +85,8 @@ public class TeacherService extends ServiceBase {
     }
     
     
-    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processText(Long userId, String text) {
+    public List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processText(
+            Long userId, String username, String text) {
         State state = userIdToState.get(userId);
         
         if (state == null)
@@ -84,6 +96,7 @@ public class TeacherService extends ServiceBase {
             case POST_LINK_SUBJECT -> postLinkAskForLink(userId, text);
             case POST_LINK_SUBJECT_SECTION -> postLinkAskForTag(userId, text);
             case POST_LINK_SUBJECT_SECTION_LINK -> postLinkRequest(userId, text);
+            case COUNT_TOTAL_GRADES -> countTotalGradesRequest(userId, username, text);
             
             default -> notCmd(userId);
         };
@@ -176,6 +189,20 @@ public class TeacherService extends ServiceBase {
                     stateData.get(2),
                     tag
             );
+            
+            return List.of(new SendMessage(userId, "Готово"));
+        } catch (StudentManagerException e) {
+            return errorMessage(userId, e);
+        }
+    }
+    
+    
+    private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> countTotalGradesRequest(
+            Long userId, String username, String link) {
+        userIdToState.remove(userId);
+        
+        try {
+            studentManagerDao.countTotalGrades(username, link);
             
             return List.of(new SendMessage(userId, "Готово"));
         } catch (StudentManagerException e) {

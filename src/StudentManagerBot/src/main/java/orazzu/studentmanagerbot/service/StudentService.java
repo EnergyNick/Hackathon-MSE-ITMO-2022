@@ -123,7 +123,7 @@ public class StudentService extends ServiceBase {
             Long userId, String username, String data, Message msg) {
         State state = userIdToState.get(userId);
         
-        if (userId == null)
+        if (state == null)
             return unknownCallback(userId, msg);
         
         return switch (state.getType()) {
