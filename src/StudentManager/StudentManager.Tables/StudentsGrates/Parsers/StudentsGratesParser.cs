@@ -82,13 +82,12 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
 
             if (detailsStatements != null)
             {
-                for (var i = 0; i < detailsStatements.Count * 2; i += 2)
+                for (int i = 0, step2 = 2; i < detailsStatements.Count; ++i, step2 += 2)
                 {
                     var detailsStatement = detailsStatements[i];
 
-                    var details = studentsValuesRanges[i + 2].Values[0];
-
-                    string maxPoints = studentsValuesRanges[i + 3].Values[0][0].ToString();
+                    var details = studentsValuesRanges[step2].Values[0];
+                    string maxPoints = studentsValuesRanges[step2 + 1].Values[0][0].ToString();
 
                     columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, details, maxPoints));
                 }
