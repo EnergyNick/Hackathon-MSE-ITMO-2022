@@ -11,34 +11,34 @@ internal class GoogleSheetEditor
 {
     private const string _keyFromGetGoogleAPIToken = "GoogleAPIToken";
     
-    private readonly string _spreadsheetId;
+    public readonly string SpreadsheetId;
     private readonly string _sheetNameAndRange;
     private SheetsService _service;
 
     public GoogleSheetEditor(SheetConnectData sheetConnectData, int sheetId)
     {
-        _spreadsheetId = sheetConnectData.SpreadsheetId;
+        SpreadsheetId = sheetConnectData.SpreadsheetId;
         _service = GetSheetsService(sheetConnectData);
         _sheetNameAndRange = GetSheetNameByID(_service, sheetConnectData.SpreadsheetId, sheetId).Result;
     }
 
     public GoogleSheetEditor(SheetConnectData sheetConnectData, string sheetNameAndRange = "")
     {
-        _spreadsheetId = sheetConnectData.SpreadsheetId;
+        SpreadsheetId = sheetConnectData.SpreadsheetId;
         _service = GetSheetsService(sheetConnectData);
         _sheetNameAndRange = sheetNameAndRange;
     }
     
     public GoogleSheetEditor(SheetConnectData sheetConnectData, int sheetId, string sheetRange)
     {
-        _spreadsheetId = sheetConnectData.SpreadsheetId;
+        SpreadsheetId = sheetConnectData.SpreadsheetId;
         _service = GetSheetsService(sheetConnectData);
         _sheetNameAndRange = $"'{GetSheetNameByID(_service, sheetConnectData.SpreadsheetId, sheetId).Result}'!{sheetRange}";
     }
 
     public GoogleSheetEditor(SheetConnectData sheetConnectData, SheetsService sheetsService, string sheetNameAndRange = "")
     {
-        _spreadsheetId = sheetConnectData.SpreadsheetId;
+        SpreadsheetId = sheetConnectData.SpreadsheetId;
         _service = sheetsService;
         _sheetNameAndRange = sheetNameAndRange;
     }
@@ -46,7 +46,7 @@ internal class GoogleSheetEditor
     public async Task<IList<IList<object>>> GetSheet(MajorDimensionEnum majorDimension = MajorDimensionEnum.ROWS)
     {
         SpreadsheetsResource.ValuesResource.GetRequest request =
-            _service.Spreadsheets.Values.Get(_spreadsheetId, _sheetNameAndRange);
+            _service.Spreadsheets.Values.Get(SpreadsheetId, _sheetNameAndRange);
         request.MajorDimension = majorDimension;
 
         ValueRange response = await request.ExecuteAsync();
@@ -64,7 +64,7 @@ internal class GoogleSheetEditor
     public async Task<IList<ValueRange>> GetBatchSheet(List<string> ranges, BatchMajorDimensionEnum majorDimension = BatchMajorDimensionEnum.ROWS)
     {
         SpreadsheetsResource.ValuesResource.BatchGetRequest request =
-            _service.Spreadsheets.Values.BatchGet(_spreadsheetId);
+            _service.Spreadsheets.Values.BatchGet(SpreadsheetId);
         request.MajorDimension = majorDimension;
         request.Ranges = ranges;
 
@@ -79,7 +79,7 @@ internal class GoogleSheetEditor
             Values = sheet,
         };
         
-        var updateRequest = _service.Spreadsheets.Values.Update(body, _spreadsheetId, _sheetNameAndRange);
+        var updateRequest = _service.Spreadsheets.Values.Update(body, SpreadsheetId, _sheetNameAndRange);
         updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
         await updateRequest.ExecuteAsync();
     }
@@ -91,7 +91,7 @@ internal class GoogleSheetEditor
             Requests = requests,
         };
 
-        var updateRequest = _service.Spreadsheets.BatchUpdate(body, _spreadsheetId);
+        var updateRequest = _service.Spreadsheets.BatchUpdate(body, SpreadsheetId);
         //updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.RAW;
         await updateRequest.ExecuteAsync();
     }
@@ -116,6 +116,28 @@ internal class GoogleSheetEditor
     
     public static async Task<string> GetSheetNameByID(SheetsService service, string spreadsheetId, int sheetID)
     {
+        var response = await GetSpreadsheetResponseInfo(service, spreadsheetId);
+
+        foreach(var sheet in response.Sheets)
+            if (sheet.Properties.SheetId == sheetID)
+                return sheet.Properties.Title;
+
+        throw new ArgumentNullException("No SheetTitle was found for this SheetId.");
+    }
+
+    public static async Task<int> GetIdBySheetName(SheetsService service, string spreadsheetId, string sheetName)
+    {
+        var response = await GetSpreadsheetResponseInfo(service, spreadsheetId);
+
+        foreach(var sheet in response.Sheets)
+            if (sheet.Properties.Title == sheetName)
+                return sheet.Properties.SheetId.Value;
+
+        throw new ArgumentNullException("No SheetId was found for this SheetName.");
+    }
+
+    private static async Task<Spreadsheet> GetSpreadsheetResponseInfo(SheetsService service, string spreadsheetId)
+    {
         var ranges = Array.Empty<string>();
         bool includeGridData = false;
 
@@ -124,15 +146,6 @@ internal class GoogleSheetEditor
         request.IncludeGridData = includeGridData;
 
         var response = await request.ExecuteAsync();
-
-        foreach(var sheet in response.Sheets)
-        {
-            if (sheet.Properties.SheetId == sheetID)
-            {
-                return sheet.Properties.Title;
-            }
-        }
-
-        throw new ArgumentNullException("No SheetTitle was found for this SheetId.");
+        return response;
     }
 }
