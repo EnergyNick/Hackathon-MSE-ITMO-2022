@@ -2,11 +2,11 @@ package orazzu.studentmanagerbot.service.util;
 
 
 import com.pengrad.telegrambot.request.SendMessage;
-import orazzu.studentmanagerbot.model.Lecturer;
-import orazzu.studentmanagerbot.model.SubgroupOfSubject;
-import orazzu.studentmanagerbot.model.Subject;
-import orazzu.studentmanagerbot.model.Teacher;
+import orazzu.studentmanagerbot.model.*;
+import orazzu.studentmanagerbot.view.StudentSubjectGradesView;
 import orazzu.studentmanagerbot.view.StudentSubjectView;
+
+import java.util.List;
 
 
 public class EntityToMessageMapper {
@@ -49,6 +49,31 @@ public class EntityToMessageMapper {
         }
     
         msgBuilder.appendKeyValue("Ведомость", subgroupStatementLink);
+        
+        return msgBuilder.build();
+    }
+    
+    
+    public static SendMessage map(Long userId, StudentSubjectGradesView studentSubjectGradesView) {
+        MessageBuilder msgBuilder = new MessageBuilder(userId)
+                .appendHeader(studentSubjectGradesView.getSubjectName());
+    
+        List<Grade> grades = studentSubjectGradesView.getGrades();
+        if (grades != null)
+            grades.forEach(grade -> {
+                msgBuilder.appendKeyValue(grade.getName(), grade.getCurrentValue() + " из " + grade.getMaxValue());
+                
+                if (grade.getParts() != null)
+                    grade.getParts().forEach(gradePart -> msgBuilder.appendKeyValue(
+                            gradePart.getName(),
+                            gradePart.getValue() + " из " + gradePart.getMaxValue()
+                    ));
+            });
+        
+        msgBuilder.appendHeader("Ведомости");
+        msgBuilder
+                .appendKeyValue("Лекции", studentSubjectGradesView.getLinkToLecturerStatement())
+                .appendKeyValue("Практики", studentSubjectGradesView.getLinkToSubgroupStatement());
         
         return msgBuilder.build();
     }

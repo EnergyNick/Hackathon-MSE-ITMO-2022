@@ -9,6 +9,7 @@ import orazzu.studentmanagerbot.Props;
 import orazzu.studentmanagerbot.dto.*;
 import orazzu.studentmanagerbot.error.StudentManagerException;
 import orazzu.studentmanagerbot.model.*;
+import orazzu.studentmanagerbot.view.StudentSubjectGradesView;
 import orazzu.studentmanagerbot.view.StudentSubjectView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class StudentManagerDao extends DaoBase {
@@ -62,7 +64,7 @@ public class StudentManagerDao extends DaoBase {
     }
     
     
-    public StudentSubjectView getStudentSubject(User user, String subjectId) throws StudentManagerException {
+    public StudentSubjectView getStudentSubjectId(User user, String subjectId) throws StudentManagerException {
         LOGGER.debug("Getting subject by id {} for {}", subjectId, user);
         
         Request request = new Request.Builder()
@@ -122,7 +124,57 @@ public class StudentManagerDao extends DaoBase {
                 
                 throw toStudentManagerException(json);
             }
-        } catch (Exception e) {
+        } catch (IOException | RuntimeException e) {
+            throw wrapAsUnknownError(e);
+        }
+    }
+    
+    
+    public StudentSubjectGradesView getStudentGradesBySubjectId(User user, String subjectId) throws StudentManagerException {
+        LOGGER.debug("Getting grades by subject id {} for {}", subjectId, user);
+        
+        Request request = new Request.Builder()
+                .method("GET", null)
+                .url(BASE_URL + "/student/" + user.getTgUsername() + "/subject/" + subjectId + "/grades")
+                .build();
+        
+        try (Response response = httpClient.newCall(request).execute()) {
+            String json = response.body().string();
+            
+            if (response.isSuccessful()) {
+                StudentSubjectGradesDto studentGradesDto = GSON.fromJson(json, StudentSubjectGradesDto.class);
+                final List<GradeDto> gradesDto = studentGradesDto.getGrades();
+                
+                return new StudentSubjectGradesView(
+                        studentGradesDto.getSubjectName(),
+                        gradesDto != null?
+                                gradesDto.stream().map(
+                                        gradeDto -> new Grade(
+                                                gradeDto.getName(),
+                                                gradeDto.getCurrentValue(),
+                                                gradeDto.getMaxValue(),
+                                                gradeDto.getParts() != null?
+                                                        gradeDto.getParts().stream().map(
+                                                                gradePartDto -> new GradePart(
+                                                                        gradePartDto.getName(),
+                                                                        gradePartDto.getValue(),
+                                                                        gradePartDto.getMaxValue()
+                                                                )
+                                                        ).collect(Collectors.toList()) : null
+                                        )
+                                ).collect(Collectors.toList()) : null,
+                        studentGradesDto.getLinkToLecturerStatement(),
+                        studentGradesDto.getLinkToSubgroupStatement()
+                );
+            }
+            
+            else {
+                LOGGER.info("Failed to get grades by subject id {} for {}: code={} body={}",
+                        subjectId, user, response.code(), json);
+                
+                throw toStudentManagerException(json);
+            }
+        } catch (IOException | RuntimeException e) {
             throw wrapAsUnknownError(e);
         }
     }

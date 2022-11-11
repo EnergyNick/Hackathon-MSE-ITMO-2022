@@ -66,7 +66,7 @@ public class Listener implements UpdatesListener {
             
             case "/get_subject" -> studentService.getSubjects(userId, username);
             
-            case "/get_grades" -> studentService.getRating(userId, username);
+            case "/get_grades" -> studentService.getGrades(userId, username);
             
             case "/get_hometasks" -> studentService.getHometasks(userId, username);
             
@@ -76,24 +76,11 @@ public class Listener implements UpdatesListener {
     
     
     private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processCallback(CallbackQuery query) {
-        String[] menuButton = query.data().split(":", 2);
-        Long userId = query.from().id();
-        String username = query.from().username();
-        Message message = query.message();
-        
-        return switch (menuButton[0]) {
-            case "subjects" -> studentService.getStudentSubjectCallback(userId, username, menuButton[1], message);
-            
-            case "grades" -> studentService.notImplemented(userId, message);
-            
-            case "hometasks" -> studentService.notImplemented(userId, message);
-            
-            default -> studentService.unknownCallback(userId, message);
-        };
+        return studentService.processCallback(query.from().id(), query.from().username(), query.data(), query.message());
     }
     
     
     private List<BaseRequest<? extends BaseRequest<?, ?>, ? extends BaseResponse>> processText(Message msg) {
-        return studentService.notCmd(msg.chat().id());
+        return studentService.processText(msg.chat().id(), msg.text());
     }
 }
