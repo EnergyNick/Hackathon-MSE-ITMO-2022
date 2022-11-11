@@ -7,4 +7,5 @@ public interface IGradesEditorWrapper
 {
     Task<List<StudentGratesData>> ReadAll();
     Task<Result<StudentGratesData>> ReadByUserId(string userId);
+    Task<Result> WriteToSpreadsheet(string spreadsheetLink, List<StudentGratesData> studentsGrates);
 };

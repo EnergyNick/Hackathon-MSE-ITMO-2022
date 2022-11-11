@@ -15,15 +15,21 @@ public class GradesEditorWrapper : IGradesEditorWrapper
 
     private readonly ITableWrapper<StatementSheetData> _statements;
     private readonly ITableWrapper<StudentData> _students;
+    private readonly ITableWrapper<TeacherData> _teachers;
+    private readonly ITableWrapper<SubgroupOfPracticeData> _subgroups;
 
     public GradesEditorWrapper(IGradeSheetEditor sheet,
         StudentsTableWrapper students,
         StatementsTableWrapper statements,
+        TeachersTableWrapper teachers,
+        PracticeSubgroupsTableWrapper subgroups,
         IAppCache appCache, ILogger logger)
     {
         Sheet = sheet;
         _students = students;
         _statements = statements;
+        _teachers = teachers;
+        _subgroups = subgroups;
         AppCache = appCache;
         Logger = logger;
 
@@ -50,6 +56,23 @@ public class GradesEditorWrapper : IGradesEditorWrapper
         return dict.TryGetValue(userId, out var value)
             ? Result.Ok(value)
             : Result.Fail(CantFindByUserErrorMessage(userId));
+    }
+
+    public async Task<Result> WriteToSpreadsheet(string spreadsheetLink, List<StudentGratesData> studentsGrates)
+    {
+        try
+        {
+            await Sheet.WriteToSpreadsheet(spreadsheetLink, studentsGrates,
+                await _statements.ReadAll(),
+                await _subgroups.ReadAll(),
+                await _teachers.ReadAll());
+            return Result.Ok();
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "Error on trying to create unload for {Link}", spreadsheetLink);
+            return Result.Fail(WrapperErrors.ErrorOnUploadingGradesToTable);
+        }
     }
 
     protected virtual async Task<List<StudentGratesData>> UpdateCache()

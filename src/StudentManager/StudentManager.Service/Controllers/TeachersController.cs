@@ -20,11 +20,15 @@ public class TeachersController : ExtendedMappingController
     private readonly SubjectsTableWrapper _subjects;
     private readonly TeachersTableWrapper _teachers;
     private readonly PracticeSubgroupsTableWrapper _subgroups;
+    private readonly GradesEditorWrapper _gradesEditor;
 
     public TeachersController(HttpClient client, IMapper mapper,
             SubjectsTableWrapper subjects,
             TeachersTableWrapper teachers,
-            PracticeSubgroupsTableWrapper subgroups)
+            PracticeSubgroupsTableWrapper subgroups,
+            StudentsTableWrapper students,
+            GradesEditorWrapper gradesEditor
+    )
         : base(mapper)
     {
         _client = client;
@@ -33,6 +37,7 @@ public class TeachersController : ExtendedMappingController
         _subjects = subjects;
         _teachers = teachers;
         _subgroups = subgroups;
+        _gradesEditor = gradesEditor;
     }
 
     [HttpGet("{telegramId}/subjects")]
@@ -58,6 +63,18 @@ public class TeachersController : ExtendedMappingController
         return infos.IsSuccess
             ? Mapper.Map<SubjectInfoDto[]>(infos.Value)
             : CreateFailResult(infos.Errors, HttpStatusCode.NotFound);
+    }
+
+    [HttpPost("{telegramId}/subjects/total")]
+    public async Task<ActionResult<SubjectInfoDto[]>> GetTotalGradesSubjectsOfTeacher(string telegramId,
+        [FromBody] SpreadsheetCreateDto dto)
+    {
+        var user = await _teachers.ReadByTelegramId(telegramId);
+        if (user.IsFailed)
+            return CreateFailResult(user.Errors, HttpStatusCode.NotFound);
+
+        var result = await _gradesEditor.WriteToSpreadsheet(dto.LinkToSpreadsheet, await _gradesEditor.ReadAll());
+        return CreateResponseByResult(result);
     }
 
     [HttpPost("subject/{subjectId}/section/{sectionId}/attach/link")]
