@@ -82,13 +82,12 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
 
             if (detailsStatements != null)
             {
-                for (var i = 0; i < detailsStatements.Count * 2; i += 2)
+                for (int i = 0, step2 = 2; i < detailsStatements.Count; ++i, step2 += 2)
                 {
                     var detailsStatement = detailsStatements[i];
 
-                    var details = studentsValuesRanges[i + 2].Values[0];
-
-                    string maxPoints = studentsValuesRanges[i + 3].Values[0][0].ToString();
+                    var details = studentsValuesRanges[step2].Values[0];
+                    string maxPoints = studentsValuesRanges[step2 + 1].Values[0][0].ToString();
 
                     columnsPartsStatements.Add(new ColumnPartStatement(detailsStatement.Title, details, maxPoints));
                 }
@@ -139,7 +138,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
         return studentsGrates.Values.ToList();
     }
 
-    public async Task Write(string spreadsheetLink, List<StudentGratesData> studentsGrates,
+    public async Task WriteToSpreadsheet(string spreadsheetLink, List<StudentGratesData> studentsGrates,
         List<StatementSheetData> allStatements, List<SubgroupOfPracticeData> allSubgroups,
         List<TeacherData> allTeachers)
     {
@@ -307,7 +306,7 @@ internal class StudentsStatementInSubgroups : IGradeSheetEditor
             },
         };*/
         
-        sheetResult.SetSheet(requests);
-        sheetResult.SetSheet(values);
+        await sheetResult.SetSheet(requests);
+        await sheetResult.SetSheet(values);
     }
 }
