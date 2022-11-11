@@ -13,13 +13,6 @@ use Illuminate\Support\Facades\Http;
 
 class EditService implements EditServiceInterface
 {
-    public function edit(): JsonResponse
-    {
-        dd(1);
-
-        return response()->json(['d' => 's'], 200);
-    }
-
     /**
      * Upload file.
      * @param FileEditRequest $request

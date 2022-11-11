@@ -23,14 +23,6 @@ class EditController extends BaseController
     }
 
     /**
-     * Edit page.
-     */
-    public function edit(): JsonResponse
-    {
-        return $this->service->edit();
-    }
-
-    /**
      * Append file to section.
      * @param AppendFileEditRequest
      * @return JsonResponse

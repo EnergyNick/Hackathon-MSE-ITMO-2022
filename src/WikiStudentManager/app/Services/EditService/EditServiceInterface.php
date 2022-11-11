@@ -9,7 +9,6 @@ use Illuminate\Http\JsonResponse;
 
 interface EditServiceInterface
 {
-    public function edit(): JsonResponse;
     public function upload(FileEditRequest $request): JsonResponse;
     public function appendFile(AppendFileEditRequest $request):JsonResponse;
     public function appendLink(AppendLinkEditRequest $request):JsonResponse;
