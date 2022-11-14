@@ -42,7 +42,7 @@ public class MessageBuilder {
     
     
     public MessageBuilder appendKeyValue(String key, String value) {
-        if (value == null || value.equals("-"))
+        if (value == null)
             return this;
         
         return appendLine(key + ": " + value);
@@ -50,7 +50,7 @@ public class MessageBuilder {
     
     
     public MessageBuilder appendKeyValueTg(String key, String tgUsername) {
-        return appendKeyValue(key, "@" + tgUsername);
+        return appendKeyValue(key, tgUsername != null? "@" + tgUsername : null);
     }
     
     

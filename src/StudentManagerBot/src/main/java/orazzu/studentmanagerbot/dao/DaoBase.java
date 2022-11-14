@@ -6,13 +6,17 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import orazzu.studentmanagerbot.error.ErrorCode;
 import orazzu.studentmanagerbot.error.StudentManagerException;
+import orazzu.studentmanagerbot.util.RemoveMinusStringsJsonDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
 public class DaoBase {
     private final Logger LOGGER = LoggerFactory.getLogger(DaoBase.class);
-    protected final Gson GSON = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE).create();
+    protected final Gson GSON = new GsonBuilder()
+            .setFieldNamingPolicy(FieldNamingPolicy.UPPER_CAMEL_CASE)
+            .registerTypeAdapter(String.class, new RemoveMinusStringsJsonDeserializer())
+            .create();
     
     
     protected StudentManagerException wrapAsUnknownError(Exception e) {

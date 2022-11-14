@@ -130,7 +130,6 @@ public class StudentService extends ServiceBase {
             case GET_SUBJECT -> getStudentSubjectCallback(userId, username, data, msg);
             case GET_GRADES -> getStudentGradesBySubjectCallback(userId, username, data, msg);
             case GET_HOMETASKS -> notImplemented(userId, msg);
-            default -> unknownCallback(userId, msg);
         };
     }
     
