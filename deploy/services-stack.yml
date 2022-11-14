@@ -1,0 +1,128 @@
+version: "3.8"
+
+services:
+  manager:
+    image: darthnickolas/student-manager.service:v0.0.1b-4
+    networks:
+      - web_public
+      - private
+    secrets:
+      - source: GoogleApiKey_v1
+        target: GoogleAPIToken
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=web_public"
+        - "traefik.http.routers.manager.service=manager"
+        - "traefik.http.routers.manager.rule=Host(`api.test.${HOST_DOMAIN}`) && PathPrefix(`/manager`)"
+        - "traefik.http.routers.manager.entrypoints=websecure"
+        - "traefik.http.routers.manager.tls.certresolver=myresolver"
+        - "traefik.http.services.manager.loadbalancer.server.port=80"
+        - "traefik.http.middlewares.manager_mw.stripprefix.prefixes=/manager"
+        - "traefik.http.routers.manager.middlewares=manager_mw@docker"
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+
+  wiki_service:
+    image: darthnickolas/student-manager.wiki:v0.0.1a-3
+    networks:
+      - web_public
+      - private
+    environment:
+      - APP_DEBUG=true
+      - DB_CONNECTION=sqlite
+      - DB_DATABASE=/app/database/database.sqlite
+      - APP_KEY:PLACEHEREYOURKEYOFMEDIAWIKI
+    configs:
+      - source: Wiki_Credentials_v1
+        target: /app/config/data_wiki.php
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=web_public"
+        - "traefik.http.routers.wiki.service=wiki"
+        - "traefik.http.routers.wiki.rule=Host(`api.test.${HOST_DOMAIN}`) && PathPrefix(`/wiki`)"
+        - "traefik.http.routers.wiki.entrypoints=websecure"
+        - "traefik.http.routers.wiki.tls.certresolver=myresolver"
+        - "traefik.http.services.wiki.loadbalancer.server.port=80"
+        - "traefik.http.middlewares.wiki_mw.stripprefix.prefixes=/wiki"
+        - "traefik.http.routers.wiki.middlewares=wiki_mw@docker"
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+
+  students:
+    image: darthnickolas/student-manager.tg.students:v0.0.1b-1
+    networks:
+      - web_public
+      - private
+    configs:
+      - source: TG_Student_Credentials_v1
+        target: /bot.properties
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=web_public"
+        - "traefik.http.routers.students.service=students"
+        - "traefik.http.routers.students.rule=Host(`api.test.${HOST_DOMAIN}`) && PathPrefix(`/students`)"
+        - "traefik.http.routers.students.entrypoints=websecure"
+        - "traefik.http.routers.students.tls.certresolver=myresolver"
+        - "traefik.http.services.students.loadbalancer.server.port=8080"
+        - "traefik.http.middlewares.students_mw.stripprefix.prefixes=/students"
+        - "traefik.http.routers.students.middlewares=students_mw@docker"
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+
+  teachers:
+    image: darthnickolas/student-manager.tg.teachers:v0.0.1b-1
+    networks:
+      - web_public
+      - private
+    configs:
+      - source: TG_Teacher_Credentials_v1
+        target: /bot.properties
+    deploy:
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=web_public"
+        - "traefik.http.routers.teachers.service=teachers"
+        - "traefik.http.routers.teachers.rule=Host(`api.test.${HOST_DOMAIN}`) && PathPrefix(`/teachers`)"
+        - "traefik.http.routers.teachers.entrypoints=websecure"
+        - "traefik.http.routers.teachers.tls.certresolver=myresolver"
+        - "traefik.http.services.teachers.loadbalancer.server.port=8080"
+        - "traefik.http.middlewares.teachers_mw.stripprefix.prefixes=/teachers"
+        - "traefik.http.routers.teachers.middlewares=teachers_mw@docker"
+      restart_policy:
+        condition: any
+        delay: 5s
+        window: 120s
+
+
+configs:
+  Wiki_Credentials_v1:
+    external: true
+  TG_Student_Credentials_v1:
+    external: true
+  TG_Teacher_Credentials_v1:
+    external: true
+
+secrets:
+  GoogleApiKey_v1:
+    external: true
+
+
+networks:
+  web_public:
+    external: true
+  private:
+    external: true
+  
