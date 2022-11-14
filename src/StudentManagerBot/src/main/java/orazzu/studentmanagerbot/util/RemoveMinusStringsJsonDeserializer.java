@@ -1,0 +1,18 @@
+package orazzu.studentmanagerbot.util;
+
+
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+
+import java.lang.reflect.Type;
+
+
+public class RemoveMinusStringsJsonDeserializer implements JsonDeserializer<String> {
+    @Override
+    public String deserialize(JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
+        final String value = json.getAsString();
+        return value == null || "-".equals(value)? null : value;
+    }
+}
