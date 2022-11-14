@@ -28,12 +28,6 @@ public class PracticeSubgroupsTableWrapper : BaseTableWrapper<SubgroupOfPractice
     public virtual async Task<Result<SubgroupOfPracticeData[]>> ReadByTeacherId(string teacherId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, SubgroupOfPracticeData[]>>(_cacheDictByTeacherIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, SubgroupOfPracticeData[]>>(_cacheDictByTeacherIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<SubgroupOfPracticeData[]>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(teacherId, out var value)

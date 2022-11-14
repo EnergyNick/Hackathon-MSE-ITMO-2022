@@ -2,12 +2,13 @@
 using LazyCache;
 using Microsoft.Extensions.Caching.Memory;
 using Serilog;
+using StudentManager.Core.Hosting;
 using StudentManager.Tables;
 using StudentManager.Tables.Models;
 
 namespace StudentManager.Logic.Wrappers;
 
-public abstract class BaseTableWrapper<T> : ITableWrapper<T>
+public abstract class BaseTableWrapper<T> : ITableWrapper<T>, IPreInitializationService
     where T: ISheetRowData
 {
     protected readonly IManagerSheetEditor<T> Sheet;
@@ -29,12 +30,6 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
     public virtual async Task<Result<T>> ReadById(string id)
     {
         if (!AppCache.TryGetValue<Dictionary<string, T>>(CacheDictByIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, T>>(CacheDictByIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<T>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(id, out var value)
@@ -106,5 +101,10 @@ public abstract class BaseTableWrapper<T> : ITableWrapper<T>
     {
         Logger.Warning("Can\'t find element in {Name} by id {Id}", GetType().Name, id);
         return WrapperErrors.CantFindItemById;
+    }
+
+    public async Task InitializeAsync()
+    {
+        await UpdateCache();
     }
 }

@@ -26,12 +26,6 @@ public class StatementsTableWrapper : BaseTableWrapper<StatementSheetData>
     public virtual async Task<Result<StatementSheetData[]>> ReadBySubjectId(string subjectId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, StatementSheetData[]>>(_cacheDictBySubjectIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, StatementSheetData[]>>(_cacheDictBySubjectIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<StatementSheetData[]>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(subjectId, out var value)

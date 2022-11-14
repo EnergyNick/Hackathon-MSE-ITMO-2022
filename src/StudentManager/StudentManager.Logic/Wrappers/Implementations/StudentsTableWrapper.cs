@@ -28,12 +28,6 @@ public class StudentsTableWrapper : BaseTableWrapper<StudentData>
     public virtual async Task<Result<StudentData>> ReadByTelegramId(string telegramId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, StudentData>>(_cacheDictByTelegramIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, StudentData>>(_cacheDictByTelegramIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<StudentData>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(telegramId, out var value)

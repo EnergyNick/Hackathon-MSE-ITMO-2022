@@ -34,12 +34,6 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
     public virtual async Task<Result<AcademicSubjectData[]>> ReadByGroupId(string groupId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, AcademicSubjectData[]>>(_cacheDictByGroupIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, AcademicSubjectData[]>>(_cacheDictByGroupIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<AcademicSubjectData[]>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(groupId, out var value)
@@ -50,12 +44,6 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
     public virtual async Task<Result<AcademicSubjectData[]>> ReadByTeacherId(string teacherId)
     {
         if (!AppCache.TryGetValue<Dictionary<string, AcademicSubjectData[]>>(_cacheDictByTeacherIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, AcademicSubjectData[]>>(_cacheDictByTeacherIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<AcademicSubjectData[]>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(teacherId, out var value)
@@ -66,12 +54,6 @@ public class SubjectsTableWrapper : BaseTableWrapper<AcademicSubjectData>
     public virtual async Task<Result<AcademicSubjectData[]>> ReadByIds(IEnumerable<string> ids)
     {
         if (!AppCache.TryGetValue<Dictionary<string, AcademicSubjectData>>(CacheDictByIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string, AcademicSubjectData>>(CacheDictByIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<AcademicSubjectData[]>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return ids

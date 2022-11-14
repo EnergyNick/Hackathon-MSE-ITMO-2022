@@ -2,12 +2,13 @@
 using LazyCache;
 using Microsoft.Extensions.Caching.Memory;
 using Serilog;
+using StudentManager.Core.Hosting;
 using StudentManager.Tables;
 using StudentManager.Tables.Models;
 
 namespace StudentManager.Logic.Wrappers.Implementations;
 
-public class GradesEditorWrapper : IGradesEditorWrapper
+public class GradesEditorWrapper : IGradesEditorWrapper, IPreInitializationService
 {
     protected readonly IGradeSheetEditor Sheet;
     protected readonly IAppCache AppCache;
@@ -47,12 +48,6 @@ public class GradesEditorWrapper : IGradesEditorWrapper
     public async Task<Result<StudentGratesData>> ReadByUserId(string userId)
     {
         if (!AppCache.TryGetValue<Dictionary<string,StudentGratesData>>(CacheDictByUserIdKey, out var dict))
-        {
-            await UpdateCache();
-            dict = AppCache.Get<Dictionary<string,StudentGratesData>>(CacheDictByUserIdKey);
-        }
-
-        if (dict == null)
             return Result.Fail<StudentGratesData>(WrapperErrors.EmptyInGoogleTablesCache);
 
         return dict.TryGetValue(userId, out var value)
@@ -118,5 +113,10 @@ public class GradesEditorWrapper : IGradesEditorWrapper
     {
         Logger.Warning("Can\'t find element in {Name} by id {Id}", GetType().Name, id);
         return WrapperErrors.CantFindGradesByUserId;
+    }
+
+    public async Task InitializeAsync()
+    {
+        await UpdateCache();
     }
 }
